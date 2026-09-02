@@ -1,5 +1,8 @@
 package com.eric.ecommerce.model;
 
+import jakarta.persistence.Entity;
+
+@Entity
 public class Categoria {
 
 	private Integer id;

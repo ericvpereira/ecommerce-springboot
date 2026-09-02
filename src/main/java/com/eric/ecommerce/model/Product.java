@@ -2,6 +2,9 @@ package com.eric.ecommerce.model;
 
 import java.math.BigDecimal;
 
+import jakarta.persistence.Entity;
+
+@Entity
 public class Product {
 
 	private Integer id;
