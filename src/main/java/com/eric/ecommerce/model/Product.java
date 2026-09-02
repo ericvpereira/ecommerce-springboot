@@ -3,12 +3,18 @@ package com.eric.ecommerce.model;
 import java.math.BigDecimal;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Product {
-
+	
+	@Id
 	private Integer id;
+	
+	@ManyToOne
 	private Categoria categoria;
+	
 	private String nome;
 	private BigDecimal preco;
 
