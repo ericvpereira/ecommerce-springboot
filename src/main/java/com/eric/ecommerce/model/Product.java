@@ -23,6 +23,10 @@ public class Product {
 	private String nome;
 	private BigDecimal preco;
 
+	public Product() {
+
+	}
+
 	public Product(Integer id, Categoria categoria, String nome, BigDecimal preco) {
 		this.id = id;
 		this.categoria = categoria;
