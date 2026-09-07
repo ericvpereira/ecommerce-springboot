@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.eric.ecommerce.exceptions.ProductNotFoundException;
 import com.eric.ecommerce.model.Product;
 import com.eric.ecommerce.repository.ProductRepository;
 
@@ -30,7 +31,8 @@ public class ProductService {
 
 	public Product findById(Integer id) {
 
-		return productRepository.findById(id).orElseThrow();
+		return productRepository.findById(id)
+				.orElseThrow(() -> new ProductNotFoundException("Produto com ID [" + id + "] não encontrado"));
 
 	}
 
