@@ -8,6 +8,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 public class Product {
@@ -20,7 +22,10 @@ public class Product {
 	@JoinColumn(name = "categoria_id")
 	private Categoria categoria;
 
+	@NotBlank
 	private String nome;
+
+	@DecimalMin("0")
 	private BigDecimal preco;
 
 	public Product() {
