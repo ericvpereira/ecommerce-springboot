@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<Map<String, String>> handleArgumentNotValidException(MethodArgumentNotValidException ex) {
+	public ResponseEntity<ApiError> handleArgumentNotValidException(MethodArgumentNotValidException ex) {
 
 		Map<String, String> map = new HashMap<>();
 		List<FieldError> erros = ex.getBindingResult().getFieldErrors();
@@ -31,7 +31,9 @@ public class GlobalExceptionHandler {
 			map.put(erro.getField(), erro.getDefaultMessage());
 		}
 
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);
+		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "Erro de validação", map);
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 
 	}
 
