@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.eric.ecommerce.dto.ProductDTO;
 import com.eric.ecommerce.model.Product;
 import com.eric.ecommerce.service.ProductService;
 
@@ -29,14 +30,14 @@ public class ProductController {
 	}
 
 	@GetMapping
-	public List<Product> findAll() {
+	public List<ProductDTO> findAll() {
 
 		return productService.findAll();
 
 	}
 
 	@GetMapping("/{id}")
-	public Product findById(@PathVariable Integer id) {
+	public ProductDTO findById(@PathVariable Integer id) {
 
 		return productService.findById(id);
 
@@ -51,18 +52,19 @@ public class ProductController {
 
 	}
 
-	@PutMapping("/{id}")
-	public Product update(@PathVariable Integer id, @RequestBody Product product) {
-
-		Product produto = productService.findById(id);
-
-		produto.setNome(product.getNome());
-		produto.setPreco(product.getPreco());
-		produto.setCategoria(product.getCategoria());
-
-		return productService.save(produto);
-
-	}
+	/*
+	 * @PutMapping("/{id}") public Product update(@PathVariable Integer
+	 * id, @RequestBody Product product) {
+	 * 
+	 * Product produto = productService.findById(id);
+	 * 
+	 * produto.setNome(product.getNome()); produto.setPreco(product.getPreco());
+	 * produto.setCategoria(product.getCategoria());
+	 * 
+	 * return productService.save(produto);
+	 * 
+	 * }
+	 */
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> delete(@PathVariable Integer id) {
