@@ -2,11 +2,21 @@ package com.eric.ecommerce.dto;
 
 import java.math.BigDecimal;
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 public class ProductDTO {
 
 	private Integer id;
+
+	@NotBlank
 	private String nome;
+
+	@DecimalMin("0")
 	private BigDecimal preco;
+
+	@NotNull
 	private Integer categoriaId;
 
 	public ProductDTO() {

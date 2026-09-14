@@ -28,4 +28,10 @@ public class CategoriaService {
 
 	}
 
+	public Categoria findById(Integer id) {
+
+		return categoriaRepository.findById(id).orElseThrow();
+
+	}
+
 }

@@ -7,21 +7,28 @@ import org.springframework.stereotype.Service;
 
 import com.eric.ecommerce.dto.ProductDTO;
 import com.eric.ecommerce.exceptions.ProductNotFoundException;
+import com.eric.ecommerce.model.Categoria;
 import com.eric.ecommerce.model.Product;
 import com.eric.ecommerce.repository.ProductRepository;
 
 @Service
 public class ProductService {
 
-	ProductRepository productRepository;
+	private ProductRepository productRepository;
+	private CategoriaService categoriaService;
 
-	public ProductService(ProductRepository productRepository) {
+	public ProductService(ProductRepository productRepository, CategoriaService categoriaService) {
 		this.productRepository = productRepository;
+		this.categoriaService = categoriaService;
 	}
 
-	public Product save(Product product) {
+	public ProductDTO save(ProductDTO dto) {
 
-		return productRepository.save(product);
+		Product product = toEntity(dto);
+
+		Product savedProduct = productRepository.save(product);
+
+		return toDTO(savedProduct);
 
 	}
 
@@ -66,6 +73,19 @@ public class ProductService {
 		productDTO.setCategoriaId(product.getCategoria().getId());
 
 		return productDTO;
+
+	}
+
+	public Product toEntity(ProductDTO dto) {
+
+		Product product = new Product();
+		Categoria categoria = categoriaService.findById(dto.getCategoriaId());
+
+		product.setNome(dto.getNome());
+		product.setPreco(dto.getPreco());
+		product.setCategoria(categoria);
+
+		return product;
 
 	}
 

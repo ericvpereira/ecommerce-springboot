@@ -8,13 +8,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eric.ecommerce.dto.ProductDTO;
-import com.eric.ecommerce.model.Product;
 import com.eric.ecommerce.service.ProductService;
 
 import jakarta.validation.Valid;
@@ -44,9 +42,9 @@ public class ProductController {
 	}
 
 	@PostMapping
-	public ResponseEntity<Product> createdProduct(@RequestBody @Valid Product product) {
+	public ResponseEntity<ProductDTO> createdProduct(@RequestBody @Valid ProductDTO dto) {
 
-		Product save = productService.save(product);
+		ProductDTO save = productService.save(dto);
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(save);
 
