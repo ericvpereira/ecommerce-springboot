@@ -96,4 +96,19 @@ public class ProductService {
 
 	}
 
+	public ProductDTO update(Integer id, ProductDTO dto) {
+
+		Product product = findEntityById(id);
+
+		product.setNome(dto.getNome());
+		product.setPreco(dto.getPreco());
+		Categoria categoria = categoriaService.findById(dto.getCategoriaId());
+		product.setCategoria(categoria);
+
+		Product savedProduct = productRepository.save(product);
+
+		return toDTO(savedProduct);
+
+	}
+
 }

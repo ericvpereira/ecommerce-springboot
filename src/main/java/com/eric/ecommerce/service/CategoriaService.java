@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.eric.ecommerce.exceptions.CategoriaNotFoundException;
 import com.eric.ecommerce.model.Categoria;
 import com.eric.ecommerce.repository.CategoriaRepository;
 
@@ -30,7 +31,8 @@ public class CategoriaService {
 
 	public Categoria findById(Integer id) {
 
-		return categoriaRepository.findById(id).orElseThrow();
+		return categoriaRepository.findById(id)
+				.orElseThrow(() -> new CategoriaNotFoundException("Categoria com ID [" + id + "] não encontrada"));
 
 	}
 

@@ -42,4 +42,16 @@ public class GlobalExceptionHandler {
 
 	}
 
+	@ExceptionHandler(CategoriaNotFoundException.class)
+	public ResponseEntity<ApiError> handleCategoriaNotFoundException(CategoriaNotFoundException ex) {
+
+		Map<String, String> map = new HashMap<>();
+		map.put("categoria", ex.getMessage());
+
+		ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(), "Categoria não encontrada", map);
+
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+
+	}
+
 }
