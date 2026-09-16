@@ -3,6 +3,8 @@ package com.eric.ecommerce.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.eric.ecommerce.dto.ProductDTO;
@@ -108,6 +110,14 @@ public class ProductService {
 		Product savedProduct = productRepository.save(product);
 
 		return toDTO(savedProduct);
+
+	}
+
+	public Page<ProductDTO> findAll(Pageable pageable) {
+
+		Page<Product> products = productRepository.findAll(pageable);
+
+		return products.map(product -> toDTO(product));
 
 	}
 

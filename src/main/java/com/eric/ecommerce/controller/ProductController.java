@@ -1,7 +1,9 @@
 package com.eric.ecommerce.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,9 +31,10 @@ public class ProductController {
 	}
 
 	@GetMapping
-	public List<ProductDTO> findAll() {
+	public Page<ProductDTO> findAll(
+			@PageableDefault(size = 10, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
 
-		return productService.findAll();
+		return productService.findAll(pageable);
 
 	}
 
