@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eric.ecommerce.dto.ProductDTO;
@@ -31,8 +32,14 @@ public class ProductController {
 	}
 
 	@GetMapping
-	public Page<ProductDTO> findAll(
+	public Page<ProductDTO> findAll(@RequestParam(required = false) Integer categoriaId,
 			@PageableDefault(size = 10, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
+
+		if (categoriaId != null) {
+
+			return productService.findByCategoria(categoriaId, pageable);
+
+		}
 
 		return productService.findAll(pageable);
 

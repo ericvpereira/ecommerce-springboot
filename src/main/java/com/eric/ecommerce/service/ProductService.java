@@ -121,4 +121,14 @@ public class ProductService {
 
 	}
 
+	public Page<ProductDTO> findByCategoria(Integer categoriaId, Pageable pageable) {
+		
+		categoriaService.findById(categoriaId);
+		
+		Page<Product> products = productRepository.findByCategoria_Id(categoriaId, pageable);
+
+		return products.map(product -> toDTO(product));
+
+	}
+
 }
