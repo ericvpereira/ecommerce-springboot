@@ -36,6 +36,11 @@ public class ProductController {
 			@RequestParam(required = false) String nome,
 			@PageableDefault(size = 10, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
 
+		if (categoriaId != null && nome != null) {
+			return productService.findByCategoriaAndNome(categoriaId, nome, pageable);
+
+		}
+
 		if (categoriaId != null) {
 
 			return productService.findByCategoria(categoriaId, pageable);

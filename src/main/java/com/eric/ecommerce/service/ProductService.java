@@ -128,12 +128,21 @@ public class ProductService {
 		Page<Product> products = productRepository.findByCategoria_Id(categoriaId, pageable);
 
 		return products.map(product -> toDTO(product));
-
 	}
 
 	public Page<ProductDTO> findByNome(String nome, Pageable pageable) {
 
 		Page<Product> products = productRepository.findByNomeContainingIgnoreCase(nome, pageable);
+
+		return products.map(product -> toDTO(product));
+	}
+
+	public Page<ProductDTO> findByCategoriaAndNome(Integer categoriaId, String nome, Pageable pageable) {
+
+		categoriaService.findById(categoriaId);
+
+		Page<Product> products = productRepository.findByCategoria_IdAndNomeContainingIgnoreCase(categoriaId, nome,
+				pageable);
 
 		return products.map(product -> toDTO(product));
 
