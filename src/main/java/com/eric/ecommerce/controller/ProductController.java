@@ -33,11 +33,18 @@ public class ProductController {
 
 	@GetMapping
 	public Page<ProductDTO> findAll(@RequestParam(required = false) Integer categoriaId,
+			@RequestParam(required = false) String nome,
 			@PageableDefault(size = 10, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
 
 		if (categoriaId != null) {
 
 			return productService.findByCategoria(categoriaId, pageable);
+
+		}
+
+		if (nome != null) {
+
+			return productService.findByNome(nome, pageable);
 
 		}
 
