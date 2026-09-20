@@ -1,5 +1,6 @@
 package com.eric.ecommerce.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.eric.ecommerce.dto.ProductDTO;
+import com.eric.ecommerce.exceptions.InvalidPriceRangeException;
 import com.eric.ecommerce.exceptions.ProductNotFoundException;
 import com.eric.ecommerce.model.Categoria;
 import com.eric.ecommerce.model.Product;
@@ -143,6 +145,18 @@ public class ProductService {
 
 		Page<Product> products = productRepository.findByCategoria_IdAndNomeContainingIgnoreCase(categoriaId, nome,
 				pageable);
+
+		return products.map(product -> toDTO(product));
+
+	}
+
+	public Page<ProductDTO> findByPrecoBetween(BigDecimal precoMin, BigDecimal precoMax, Pageable pageable) {
+		
+		if (precoMin.compareTo(precoMax) > 0) {
+			throw new InvalidPriceRangeException("Preço mínimo não pode ser maior que o preço máximo");
+		}
+		
+		Page<Product> products = productRepository.findByPrecoBetween(precoMin, precoMax, pageable);
 
 		return products.map(product -> toDTO(product));
 

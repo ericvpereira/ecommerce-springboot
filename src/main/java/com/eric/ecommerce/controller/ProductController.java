@@ -1,5 +1,7 @@
 package com.eric.ecommerce.controller;
 
+import java.math.BigDecimal;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eric.ecommerce.dto.ProductDTO;
+import com.eric.ecommerce.exceptions.InvalidPriceRangeException;
 import com.eric.ecommerce.service.ProductService;
 
 import jakarta.validation.Valid;
@@ -32,7 +35,8 @@ public class ProductController {
 	}
 
 	@GetMapping
-	public Page<ProductDTO> findAll(@RequestParam(required = false) Integer categoriaId,
+	public Page<ProductDTO> findAll(@RequestParam(required = false) BigDecimal precoMin,
+			@RequestParam(required = false) BigDecimal precoMax, @RequestParam(required = false) Integer categoriaId,
 			@RequestParam(required = false) String nome,
 			@PageableDefault(size = 10, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
 
@@ -50,6 +54,18 @@ public class ProductController {
 		if (nome != null) {
 
 			return productService.findByNome(nome, pageable);
+
+		}
+
+		if (precoMin != null && precoMax != null) {
+
+			return productService.findByPrecoBetween(precoMin, precoMax, pageable);
+
+		}
+
+		if ((precoMin != null && precoMax == null) || (precoMin == null && precoMax != null)) {
+
+			throw new InvalidPriceRangeException("Informe o preço mínimo e o preço máximo");
 
 		}
 

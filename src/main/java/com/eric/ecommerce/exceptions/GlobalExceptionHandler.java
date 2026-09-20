@@ -54,4 +54,16 @@ public class GlobalExceptionHandler {
 
 	}
 
+	@ExceptionHandler(InvalidPriceRangeException.class)
+	public ResponseEntity<ApiError> handleInvalidPriceRangeException(InvalidPriceRangeException ex) {
+
+		Map<String, String> map = new HashMap<>();
+		map.put("preco", ex.getMessage());
+
+		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "Faixa de preço inválida", map);
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+
+	}
+
 }
