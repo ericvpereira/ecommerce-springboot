@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eric.ecommerce.dto.ProductDTO;
-import com.eric.ecommerce.exceptions.InvalidPriceRangeException;
 import com.eric.ecommerce.service.ProductService;
 
 import jakarta.validation.Valid;
@@ -40,36 +39,7 @@ public class ProductController {
 			@RequestParam(required = false) String nome,
 			@PageableDefault(size = 10, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
 
-		if (categoriaId != null && nome != null) {
-			return productService.findByCategoriaAndNome(categoriaId, nome, pageable);
-
-		}
-
-		if (categoriaId != null) {
-
-			return productService.findByCategoria(categoriaId, pageable);
-
-		}
-
-		if (nome != null) {
-
-			return productService.findByNome(nome, pageable);
-
-		}
-
-		if (precoMin != null && precoMax != null) {
-
-			return productService.findByPrecoBetween(precoMin, precoMax, pageable);
-
-		}
-
-		if ((precoMin != null && precoMax == null) || (precoMin == null && precoMax != null)) {
-
-			throw new InvalidPriceRangeException("Informe o preço mínimo e o preço máximo");
-
-		}
-
-		return productService.findAll(pageable);
+		return productService.findWithFilters(categoriaId, nome, precoMin, precoMax, pageable);
 
 	}
 

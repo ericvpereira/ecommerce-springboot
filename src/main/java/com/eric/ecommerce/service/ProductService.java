@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.eric.ecommerce.dto.ProductDTO;
@@ -14,6 +15,7 @@ import com.eric.ecommerce.exceptions.ProductNotFoundException;
 import com.eric.ecommerce.model.Categoria;
 import com.eric.ecommerce.model.Product;
 import com.eric.ecommerce.repository.ProductRepository;
+import com.eric.ecommerce.specification.ProductSpecifications;
 
 @Service
 public class ProductService {
@@ -115,48 +117,43 @@ public class ProductService {
 
 	}
 
-	public Page<ProductDTO> findAll(Pageable pageable) {
+	public Page<ProductDTO> findWithFilters(Integer categoriaId, String nome, BigDecimal precoMin, BigDecimal precoMax,
+			Pageable pageable) {
 
-		Page<Product> products = productRepository.findAll(pageable);
+		Specification<Product> spec = Specification.unrestricted();
 
-		return products.map(product -> toDTO(product));
+		if (categoriaId != null) {
 
-	}
+			categoriaService.findById(categoriaId);
 
-	public Page<ProductDTO> findByCategoria(Integer categoriaId, Pageable pageable) {
+			spec = spec.and(ProductSpecifications.hasCategoria(categoriaId));
 
-		categoriaService.findById(categoriaId);
-
-		Page<Product> products = productRepository.findByCategoria_Id(categoriaId, pageable);
-
-		return products.map(product -> toDTO(product));
-	}
-
-	public Page<ProductDTO> findByNome(String nome, Pageable pageable) {
-
-		Page<Product> products = productRepository.findByNomeContainingIgnoreCase(nome, pageable);
-
-		return products.map(product -> toDTO(product));
-	}
-
-	public Page<ProductDTO> findByCategoriaAndNome(Integer categoriaId, String nome, Pageable pageable) {
-
-		categoriaService.findById(categoriaId);
-
-		Page<Product> products = productRepository.findByCategoria_IdAndNomeContainingIgnoreCase(categoriaId, nome,
-				pageable);
-
-		return products.map(product -> toDTO(product));
-
-	}
-
-	public Page<ProductDTO> findByPrecoBetween(BigDecimal precoMin, BigDecimal precoMax, Pageable pageable) {
-		
-		if (precoMin.compareTo(precoMax) > 0) {
-			throw new InvalidPriceRangeException("Preço mínimo não pode ser maior que o preço máximo");
 		}
-		
-		Page<Product> products = productRepository.findByPrecoBetween(precoMin, precoMax, pageable);
+
+		if (nome != null && !nome.isBlank()) {
+
+			spec = spec.and(ProductSpecifications.nomeContains(nome));
+		}
+
+		if ((precoMin != null && precoMax == null) || (precoMin == null && precoMax != null)) {
+
+			throw new InvalidPriceRangeException("Informe o preço mínimo e o preço máximo");
+
+		}
+
+		if (precoMin != null && precoMax != null) {
+
+			if (precoMin.compareTo(precoMax) > 0) {
+
+				throw new InvalidPriceRangeException("Preço mínimo não pode ser maior que o preço máximo");
+
+			}
+
+			spec = spec.and(ProductSpecifications.precoBetween(precoMin, precoMax));
+
+		}
+
+		Page<Product> products = productRepository.findAll(spec, pageable);
 
 		return products.map(product -> toDTO(product));
 
