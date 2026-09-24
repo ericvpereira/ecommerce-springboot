@@ -175,4 +175,70 @@ public class ProductServiceTest {
 
 	}
 
+	@Test
+	void deveBuscarProdutoPorFaixaDePreco() {
+
+		Categoria categoria = new Categoria();
+		categoria.setId(1);
+		categoria.setNome("Informatica");
+
+		Product product = new Product();
+		product.setNome("Notebook Gamer");
+		product.setPreco(new BigDecimal("4500"));
+		product.setCategoria(categoria);
+
+		Page<Product> page = new PageImpl<>(List.of(product));
+
+		when(productRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+
+		Page<ProductDTO> result = productService.findWithFilters(null, null, new BigDecimal("1000"),
+				new BigDecimal("5000"), Pageable.unpaged());
+
+		assertEquals(1, result.getTotalElements());
+
+		ProductDTO dto = result.getContent().get(0);
+
+		assertEquals("Notebook Gamer", dto.getNome());
+		assertEquals(new BigDecimal("4500"), dto.getPreco());
+		assertEquals(1, dto.getCategoriaId());
+
+		verify(productRepository).findAll(any(Specification.class), any(Pageable.class));
+
+	}
+
+	@Test
+	void deveBuscarProdutosComTodosOsFiltros() {
+
+		Categoria categoria = new Categoria();
+		categoria.setId(1);
+		categoria.setNome("Informatica");
+
+		Product product = new Product();
+		product.setNome("Notebook Gamer");
+		product.setPreco(new BigDecimal("4500"));
+		product.setCategoria(categoria);
+
+		Page<Product> page = new PageImpl<>(List.of(product));
+
+		when(categoriaService.findById(1)).thenReturn(categoria);
+
+		when(productRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+
+		Page<ProductDTO> result = productService.findWithFilters(1, "note", new BigDecimal("1000"),
+				new BigDecimal("5000"), Pageable.unpaged());
+
+		assertEquals(1, result.getTotalElements());
+
+		ProductDTO dto = result.getContent().get(0);
+
+		assertEquals("Notebook Gamer", dto.getNome());
+		assertEquals(new BigDecimal("4500"), dto.getPreco());
+		assertEquals(1, dto.getCategoriaId());
+
+		verify(categoriaService).findById(1);
+
+		verify(productRepository).findAll(any(Specification.class), any(Pageable.class));
+
+	}
+
 }
