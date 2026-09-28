@@ -5,11 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,6 +34,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.eric.ecommerce.dto.ProductDTO;
 import com.eric.ecommerce.exceptions.CategoriaNotFoundException;
 import com.eric.ecommerce.exceptions.InvalidPriceRangeException;
+import com.eric.ecommerce.exceptions.ProductNotFoundException;
 import com.eric.ecommerce.service.ProductService;
 
 import tools.jackson.databind.ObjectMapper;
@@ -154,6 +158,71 @@ public class ProductControllerTest {
 				.andExpect(jsonPath("$.errors.nome").exists()).andExpect(jsonPath("$.errors.preco").exists())
 				.andExpect(jsonPath("$.errors.categoriaId").exists());
 		verifyNoInteractions(productService);
+
+	}
+
+	@Test
+	void deveAtualizarProdutoComSucesso() throws Exception {
+
+		ProductDTO dtoEntrada = new ProductDTO(null, "Notebook Gamer Pro", new BigDecimal("5500"), 1);
+		ProductDTO dtoSaida = new ProductDTO(1, "Notebook Gamer Pro", new BigDecimal("5500"), 1);
+
+		when(productService.update(eq(1), any(ProductDTO.class))).thenReturn(dtoSaida);
+
+		mockMvc.perform(put("/api/products/1").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(dtoEntrada))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(1)).andExpect(jsonPath("$.nome").value("Notebook Gamer Pro"))
+				.andExpect(jsonPath("$.preco").value(5500)).andExpect(jsonPath("$.categoriaId").value(1));
+
+		ArgumentCaptor<ProductDTO> captor = ArgumentCaptor.forClass(ProductDTO.class);
+
+		verify(productService).update(eq(1), captor.capture());
+
+		ProductDTO capturado = captor.getValue();
+
+		assertNull(capturado.getId());
+
+		assertEquals("Notebook Gamer Pro", capturado.getNome());
+
+		assertEquals(new BigDecimal("5500"), capturado.getPreco());
+
+		assertEquals(1, capturado.getCategoriaId());
+	}
+
+	@Test
+	void deveRetornarBadRequestQuandoAtualizacaoForInvalida() throws Exception {
+
+		ProductDTO dto = new ProductDTO(null, "", new BigDecimal("-100"), null);
+
+		mockMvc.perform(put("/api/products/1").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(dto))).andExpect(jsonPath("$.status").value(400))
+				.andExpect(jsonPath("$.message").value("Erro de validação"))
+				.andExpect(jsonPath("$.errors.nome").exists()).andExpect(jsonPath("$.errors.preco").exists())
+				.andExpect(jsonPath("$.errors.categoriaId").exists()).andExpect(status().isBadRequest());
+
+		verifyNoInteractions(productService);
+
+	}
+
+	@Test
+	void deveExcluirProdutoComSucesso() throws Exception {
+
+		mockMvc.perform(delete("/api/products/1")).andExpect(status().isNoContent());
+
+		verify(productService).deleteById(1);
+
+	}
+
+	@Test
+	void deveRetornarNotFoundAoExcluirProdutoInexistente() throws Exception {
+
+		doThrow(new ProductNotFoundException("Produto com ID [999] não encontrado")).when(productService)
+				.deleteById(999);
+
+		mockMvc.perform(delete("/api/products/999")).andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.status").value(404)).andExpect(jsonPath("$.message").exists());
+
+		verify(productService).deleteById(999);
 
 	}
 
