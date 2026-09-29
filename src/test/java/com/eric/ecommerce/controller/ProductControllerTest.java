@@ -226,4 +226,32 @@ public class ProductControllerTest {
 
 	}
 
+	@Test
+	void deveBuscarProdutoPorIdComSucesso() throws Exception {
+
+		ProductDTO dto = new ProductDTO(1, "Notebook Gamer", new BigDecimal("4500"), 1);
+
+		when(productService.findById(1)).thenReturn(dto);
+
+		mockMvc.perform(get("/api/products/1")).andExpect(status().isOk()).andExpect(jsonPath("$.id").value(1))
+				.andExpect(jsonPath("$.nome").value("Notebook Gamer")).andExpect(jsonPath("$.preco").value(4500))
+				.andExpect(jsonPath("$.categoriaId").value(1));
+
+		verify(productService).findById(1);
+
+	}
+
+	@Test
+	void deveRetornarNotFoundQuandoProdutoNaoExiste() throws Exception {
+
+		when(productService.findById(999))
+				.thenThrow(new ProductNotFoundException("Produto com ID [999] não encontrado"));
+
+		mockMvc.perform(get("/api/products/999")).andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.status").value(404)).andExpect(jsonPath("$.message").exists());
+
+		verify(productService).findById(999);
+
+	}
+
 }
