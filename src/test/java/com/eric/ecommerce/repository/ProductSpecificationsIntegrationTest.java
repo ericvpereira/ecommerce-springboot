@@ -52,12 +52,19 @@ public class ProductSpecificationsIntegrationTest {
 
 		Product produtoSalvo = productRepository.save(product);
 
+		Product mouse = new Product();
+		mouse.setNome("Mouse sem fio");
+		mouse.setPreco(new BigDecimal("150"));
+		mouse.setCategoria(categoriaSalva);
+
+		productRepository.save(mouse);
+
 		List<Product> resultado = productRepository.findAll(ProductSpecifications.nomeContains("note"));
 
 		assertEquals(1, resultado.size());
 
 		assertEquals("Notebook Gamer", resultado.get(0).getNome());
-		
+
 		assertNotNull(produtoSalvo.getId());
 
 	}
