@@ -69,4 +69,40 @@ public class ProductSpecificationsIntegrationTest {
 
 	}
 
+	@Test
+	void deveBuscarProdutosPorCategoria() {
+
+		Categoria informatica = new Categoria();
+		informatica.setNome("Informatica");
+
+		Categoria informaticaSalva = categoriaRepository.save(informatica);
+
+		Categoria esportes = new Categoria();
+		esportes.setNome("Esportes");
+
+		Categoria esportesSalva = categoriaRepository.save(esportes);
+
+		Product notebook = new Product();
+		notebook.setNome("Notebook Gamer");
+		notebook.setPreco(new BigDecimal("4500"));
+		notebook.setCategoria(informaticaSalva);
+
+		productRepository.save(notebook);
+
+		Product bola = new Product();
+		bola.setNome("Bola de futebol");
+		bola.setPreco(new BigDecimal("150"));
+		bola.setCategoria(esportesSalva);
+
+		productRepository.save(bola);
+
+		List<Product> resultado = productRepository
+				.findAll(ProductSpecifications.hasCategoria(informaticaSalva.getId()));
+		
+		assertEquals(1, resultado.size());
+		
+		assertEquals("Notebook Gamer", resultado.get(0).getNome());
+		
+	}
+
 }
