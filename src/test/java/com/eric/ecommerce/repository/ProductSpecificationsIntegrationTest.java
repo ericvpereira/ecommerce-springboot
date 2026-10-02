@@ -98,11 +98,51 @@ public class ProductSpecificationsIntegrationTest {
 
 		List<Product> resultado = productRepository
 				.findAll(ProductSpecifications.hasCategoria(informaticaSalva.getId()));
-		
+
 		assertEquals(1, resultado.size());
-		
+
 		assertEquals("Notebook Gamer", resultado.get(0).getNome());
-		
+
+	}
+
+	@Test
+	void deveBuscarProdutosPorFaixaDePreco() {
+
+		Categoria informatica = new Categoria();
+		informatica.setNome("Informatica");
+
+		Categoria informaticaSalva = categoriaRepository.save(informatica);
+
+		Product mouse = new Product();
+		mouse.setNome("Mouse");
+		mouse.setPreco(new BigDecimal("150"));
+		mouse.setCategoria(informaticaSalva);
+
+		productRepository.save(mouse);
+
+		Product monitor = new Product();
+		monitor.setNome("Monitor");
+		monitor.setPreco(new BigDecimal("1200"));
+		monitor.setCategoria(informaticaSalva);
+
+		productRepository.save(monitor);
+
+		Product notebook = new Product();
+		notebook.setNome("Notebook Gamer");
+		notebook.setPreco(new BigDecimal("4500"));
+		notebook.setCategoria(informaticaSalva);
+
+		productRepository.save(notebook);
+
+		List<Product> resultado = productRepository
+				.findAll(ProductSpecifications.precoBetween(new BigDecimal("1000"), new BigDecimal("2000")));
+
+		assertEquals(1, resultado.size());
+
+		assertEquals("Monitor", resultado.get(0).getNome());
+
+		assertEquals(new BigDecimal("1200"), resultado.get(0).getPreco());
+
 	}
 
 }
