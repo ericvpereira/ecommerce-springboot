@@ -145,4 +145,56 @@ public class ProductSpecificationsIntegrationTest {
 
 	}
 
+	@Test
+	void deveBuscarProdutosComTodosOsFiltros() {
+
+		Categoria informatica = new Categoria();
+		informatica.setNome("Informatica");
+
+		Categoria informaticaSalva = categoriaRepository.save(informatica);
+
+		Categoria esportes = new Categoria();
+		esportes.setNome("Esportes");
+
+		Categoria esportesSalva = categoriaRepository.save(esportes);
+
+		Product notebookGamer = new Product();
+		notebookGamer.setNome("Notebook Gamer");
+		notebookGamer.setPreco(new BigDecimal("4500"));
+		notebookGamer.setCategoria(informaticaSalva);
+
+		productRepository.save(notebookGamer);
+
+		Product notebookBasico = new Product();
+		notebookBasico.setNome("Notebook Basico");
+		notebookBasico.setPreco(new BigDecimal("2500"));
+		notebookBasico.setCategoria(informaticaSalva);
+
+		productRepository.save(notebookBasico);
+
+		Product notebookEsportivo = new Product();
+		notebookEsportivo.setNome("Notebook Esportivo");
+		notebookEsportivo.setPreco(new BigDecimal("4000"));
+		notebookEsportivo.setCategoria(esportesSalva);
+
+		productRepository.save(notebookEsportivo);
+
+		Product mouseGamer = new Product();
+		mouseGamer.setNome("Mouse Gamer");
+		mouseGamer.setPreco(new BigDecimal("300"));
+		mouseGamer.setCategoria(informaticaSalva);
+
+		productRepository.save(mouseGamer);
+
+		List<Product> resultado = productRepository.findAll(ProductSpecifications.hasCategoria(informaticaSalva.getId())
+				.and(ProductSpecifications.nomeContains("note"))
+				.and(ProductSpecifications.precoBetween(new BigDecimal("3000"), new BigDecimal("5000"))));
+
+		assertEquals(1, resultado.size());
+		assertEquals("Notebook Gamer", resultado.get(0).getNome());
+		assertEquals(new BigDecimal("4500"), resultado.get(0).getPreco());
+		assertEquals(informaticaSalva.getId(), resultado.get(0).getCategoria().getId());
+
+	}
+
 }
