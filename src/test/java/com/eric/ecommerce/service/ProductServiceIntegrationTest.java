@@ -2,6 +2,7 @@ package com.eric.ecommerce.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 
@@ -18,6 +19,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import com.eric.ecommerce.dto.ProductDTO;
+import com.eric.ecommerce.exceptions.ProductNotFoundException;
 import com.eric.ecommerce.model.Categoria;
 import com.eric.ecommerce.repository.CategoriaRepository;
 
@@ -103,6 +105,29 @@ public class ProductServiceIntegrationTest {
 		assertEquals("Notebook Gamer", produtoBuscado.getNome());
 		assertEquals(0, new BigDecimal("4500").compareTo(produtoBuscado.getPreco()));
 		assertEquals(informaticaSalva.getId(), produtoSalvo.getCategoriaId());
+
+	}
+
+	@Test
+	void deveExcluirProdutoUsandoBancoReal() {
+
+		Categoria informatica = new Categoria();
+		informatica.setNome("Informatica");
+
+		Categoria informaticaSalva = categoriaRepository.save(informatica);
+
+		ProductDTO notebook = new ProductDTO(null, "Notebook Gamer", new BigDecimal("4500"), informaticaSalva.getId());
+
+		ProductDTO produtoSalvo = productService.save(notebook);
+
+		assertNotNull(produtoSalvo.getId());
+
+		productService.deleteById(produtoSalvo.getId());
+
+		entityManager.flush();
+		entityManager.clear();
+
+		assertThrows(ProductNotFoundException.class, () -> productService.findById(produtoSalvo.getId()));
 
 	}
 
