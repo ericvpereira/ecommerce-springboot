@@ -1,6 +1,7 @@
 package com.eric.ecommerce.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.math.BigDecimal;
 
@@ -20,6 +21,8 @@ import com.eric.ecommerce.dto.ProductDTO;
 import com.eric.ecommerce.model.Categoria;
 import com.eric.ecommerce.repository.CategoriaRepository;
 
+import jakarta.persistence.EntityManager;
+
 @DataJpaTest
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -31,6 +34,9 @@ public class ProductServiceIntegrationTest {
 	@Container
 	@ServiceConnection
 	static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:17");
+
+	@Autowired
+	private EntityManager entityManager;
 
 	@Autowired
 	private ProductService productService;
@@ -62,6 +68,41 @@ public class ProductServiceIntegrationTest {
 		assertEquals("Notebook Gamer", resultado.getContent().get(0).getNome());
 
 		assertEquals(new BigDecimal("4500"), resultado.getContent().get(0).getPreco());
+
+	}
+
+	@Test
+	void deveAtualizarProdutoUsandoBancoReal() {
+
+		Categoria informatica = new Categoria();
+		informatica.setNome("Informatica");
+
+		Categoria informaticaSalva = categoriaRepository.save(informatica);
+
+		ProductDTO notebook = new ProductDTO(null, "Notebook", new BigDecimal("3500"), informaticaSalva.getId());
+
+		ProductDTO produtoSalvo = productService.save(notebook);
+
+		assertNotNull(produtoSalvo.getId());
+
+		ProductDTO dadosAtualizados = new ProductDTO(null, "Notebook Gamer", new BigDecimal("4500"),
+				informaticaSalva.getId());
+
+		ProductDTO produtoAtualizado = productService.update(produtoSalvo.getId(), dadosAtualizados);
+
+		assertEquals(produtoSalvo.getId(), produtoAtualizado.getId());
+		assertEquals("Notebook Gamer", produtoAtualizado.getNome());
+		assertEquals(new BigDecimal("4500"), produtoAtualizado.getPreco());
+		assertEquals(informaticaSalva.getId(), produtoAtualizado.getCategoriaId());
+
+		entityManager.flush();
+		entityManager.clear();
+
+		ProductDTO produtoBuscado = productService.findById(produtoSalvo.getId());
+
+		assertEquals("Notebook Gamer", produtoBuscado.getNome());
+		assertEquals(0, new BigDecimal("4500").compareTo(produtoBuscado.getPreco()));
+		assertEquals(informaticaSalva.getId(), produtoSalvo.getCategoriaId());
 
 	}
 
