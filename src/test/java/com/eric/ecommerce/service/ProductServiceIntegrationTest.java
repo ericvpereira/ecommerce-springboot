@@ -19,6 +19,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import com.eric.ecommerce.dto.ProductDTO;
+import com.eric.ecommerce.exceptions.CategoriaNotFoundException;
 import com.eric.ecommerce.exceptions.ProductNotFoundException;
 import com.eric.ecommerce.model.Categoria;
 import com.eric.ecommerce.repository.CategoriaRepository;
@@ -128,6 +129,14 @@ public class ProductServiceIntegrationTest {
 		entityManager.clear();
 
 		assertThrows(ProductNotFoundException.class, () -> productService.findById(produtoSalvo.getId()));
+
+	}
+
+	@Test
+	void deveLancarExcecaoQuandoCategoriaNaoExisteNoBanco() {
+
+		assertThrows(CategoriaNotFoundException.class,
+				() -> productService.findWithFilters(999, null, null, null, Pageable.unpaged()));
 
 	}
 
