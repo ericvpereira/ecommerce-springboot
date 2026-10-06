@@ -1,6 +1,7 @@
 package com.eric.ecommerce.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.eric.ecommerce.exceptions.CategoriaNotFoundException;
 import com.eric.ecommerce.model.Categoria;
 import com.eric.ecommerce.repository.CategoriaRepository;
 
@@ -39,6 +41,17 @@ public class CategoriaServiceTest {
 		assertEquals("Informatica", resultado.getNome());
 
 		verify(categoriaRepository).findById(1);
+
+	}
+
+	@Test
+	void deveLancarExcecaoQuandoCategoriaNaoExiste() {
+
+		when(categoriaRepository.findById(999)).thenReturn(Optional.empty());
+
+		assertThrows(CategoriaNotFoundException.class, () -> categoriaService.findById(999));
+
+		verify(categoriaRepository).findById(999);
 
 	}
 
