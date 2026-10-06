@@ -77,4 +77,27 @@ public class CategoriaServiceTest {
 
 	}
 
+	@Test
+	void deveAtualizarCategoriaComSucesso() {
+
+		Categoria categoriaExistente = new Categoria();
+		categoriaExistente.setId(1);
+		categoriaExistente.setNome("Informatica");
+
+		when(categoriaRepository.findById(1)).thenReturn(Optional.of(categoriaExistente));
+
+		CategoriaDTO dto = new CategoriaDTO(null, "Eletronicos");
+
+		when(categoriaRepository.save(any(Categoria.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		CategoriaDTO resultado = categoriaService.update(1, dto);
+
+		assertEquals(1, resultado.getId());
+		assertEquals("Eletronicos", resultado.getNome());
+
+		verify(categoriaRepository).findById(1);
+		verify(categoriaRepository).save(any(Categoria.class));
+
+	}
+
 }
