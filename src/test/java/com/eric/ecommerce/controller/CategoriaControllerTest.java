@@ -1,10 +1,12 @@
 package com.eric.ecommerce.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -79,6 +81,23 @@ public class CategoriaControllerTest {
 				.andExpect(jsonPath("$.id").value(1)).andExpect(jsonPath("$.nome").value("Informatica"));
 
 		verify(categoriaService).save(any(CategoriaDTO.class));
+
+	}
+
+	@Test
+	void deveAtualizarCategoriaComSucesso() throws Exception {
+
+		CategoriaDTO entrada = new CategoriaDTO(null, "Eletronicos");
+
+		CategoriaDTO saida = new CategoriaDTO(1, "Eletronicos");
+
+		when(categoriaService.update(eq(1), any(CategoriaDTO.class))).thenReturn(saida);
+
+		mockMvc.perform(put("/api/categories/1").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(entrada))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(1)).andExpect(jsonPath("$.nome").value("Eletronicos"));
+
+		verify(categoriaService).update(eq(1), any(CategoriaDTO.class));
 
 	}
 
