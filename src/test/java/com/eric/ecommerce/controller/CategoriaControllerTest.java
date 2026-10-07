@@ -43,4 +43,18 @@ public class CategoriaControllerTest {
 
 	}
 
+	@Test
+	void deveBuscarCategoriaPorIdComSucesso() throws Exception {
+
+		CategoriaDTO categoria = new CategoriaDTO(1, "Informatica");
+
+		when(categoriaService.findDTOById(1)).thenReturn(categoria);
+
+		mockMvc.perform(get("/api/categories/1")).andExpect(status().isOk()).andExpect(jsonPath("$.id").value(1))
+				.andExpect(jsonPath("$.nome").value("Informatica"));
+
+		verify(categoriaService).findDTOById(1);
+
+	}
+
 }
