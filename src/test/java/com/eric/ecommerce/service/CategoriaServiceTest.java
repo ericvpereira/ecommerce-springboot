@@ -100,4 +100,20 @@ public class CategoriaServiceTest {
 
 	}
 
+	@Test
+	void deveExcluirCategoriaComSucesso() {
+
+		Categoria categoriaExistente = new Categoria();
+		categoriaExistente.setId(1);
+		categoriaExistente.setNome("Informatica");
+
+		when(categoriaRepository.findById(1)).thenReturn(Optional.of(categoriaExistente));
+
+		categoriaService.deleteById(1);
+
+		verify(categoriaRepository).findById(1);
+		verify(categoriaRepository).delete(categoriaExistente);
+
+	}
+
 }
