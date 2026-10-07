@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -113,6 +114,33 @@ public class CategoriaServiceTest {
 
 		verify(categoriaRepository).findById(1);
 		verify(categoriaRepository).delete(categoriaExistente);
+
+	}
+
+	@Test
+	void deveListarCategoriasComSucesso() {
+
+		Categoria informatica = new Categoria();
+		informatica.setId(1);
+		informatica.setNome("Informatica");
+
+		Categoria esportes = new Categoria();
+		esportes.setId(2);
+		esportes.setNome("Esportes");
+
+		when(categoriaRepository.findAll()).thenReturn(List.of(informatica, esportes));
+
+		List<CategoriaDTO> resultado = categoriaService.findAll();
+
+		assertEquals(2, resultado.size());
+
+		assertEquals(1, resultado.get(0).getId());
+		assertEquals("Informatica", resultado.get(0).getNome());
+
+		assertEquals(2, resultado.get(1).getId());
+		assertEquals("Esportes", resultado.get(1).getNome());
+
+		verify(categoriaRepository).findAll();
 
 	}
 
