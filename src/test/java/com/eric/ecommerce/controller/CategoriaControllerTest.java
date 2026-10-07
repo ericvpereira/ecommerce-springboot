@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -98,6 +99,15 @@ public class CategoriaControllerTest {
 				.andExpect(jsonPath("$.id").value(1)).andExpect(jsonPath("$.nome").value("Eletronicos"));
 
 		verify(categoriaService).update(eq(1), any(CategoriaDTO.class));
+
+	}
+
+	@Test
+	void deveExcluirCategoriaComSucesso() throws Exception {
+
+		mockMvc.perform(delete("/api/categories/1")).andExpect(status().isNoContent());
+
+		verify(categoriaService).deleteById(1);
 
 	}
 
