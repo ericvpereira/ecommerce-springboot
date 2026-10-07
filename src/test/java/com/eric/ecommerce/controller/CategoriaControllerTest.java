@@ -1,8 +1,10 @@
 package com.eric.ecommerce.controller;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -11,11 +13,14 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.eric.ecommerce.dto.CategoriaDTO;
 import com.eric.ecommerce.service.CategoriaService;
+
+import tools.jackson.databind.ObjectMapper;
 
 @WebMvcTest(CategoriaController.class)
 public class CategoriaControllerTest {
@@ -25,6 +30,9 @@ public class CategoriaControllerTest {
 
 	@MockitoBean
 	private CategoriaService categoriaService;
+
+	@Autowired
+	private ObjectMapper objectMapper;
 
 	@Test
 	void deveListarCategoriasComSucesso() throws Exception {
@@ -54,6 +62,23 @@ public class CategoriaControllerTest {
 				.andExpect(jsonPath("$.nome").value("Informatica"));
 
 		verify(categoriaService).findDTOById(1);
+
+	}
+
+	@Test
+	void deveCriarCategoriaComSucesso() throws Exception {
+
+		CategoriaDTO entrada = new CategoriaDTO(null, "Informatica");
+
+		CategoriaDTO saida = new CategoriaDTO(1, "Informatica");
+
+		when(categoriaService.save(any(CategoriaDTO.class))).thenReturn(saida);
+
+		mockMvc.perform(post("/api/categories").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(entrada))).andExpect(status().isCreated())
+				.andExpect(jsonPath("$.id").value(1)).andExpect(jsonPath("$.nome").value("Informatica"));
+
+		verify(categoriaService).save(any(CategoriaDTO.class));
 
 	}
 
