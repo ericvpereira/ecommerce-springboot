@@ -21,8 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.eric.ecommerce.dto.ProductDTO;
 import com.eric.ecommerce.service.ProductService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+@Tag(name = "Produtos", description = "Endpoints para gerenciamento de produtos")
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -33,6 +38,8 @@ public class ProductController {
 		this.productService = productService;
 	}
 
+	@Operation(summary = "Listar produtos", description = "Lista os produtos com suporte a filtros e paginação")
+	@ApiResponse(responseCode = "200", description = "Produtos encontrados com sucesso")
 	@GetMapping
 	public Page<ProductDTO> findAll(@RequestParam(required = false) BigDecimal precoMin,
 			@RequestParam(required = false) BigDecimal precoMax, @RequestParam(required = false) Integer categoriaId,
@@ -43,6 +50,9 @@ public class ProductController {
 
 	}
 
+	@Operation(summary = "Buscar produto por ID", description = "Busca um produto pelo seu identificador")
+	@ApiResponses({ @ApiResponse(responseCode = "200", description = "Produto encontrado"),
+			@ApiResponse(responseCode = "404", description = "Produto não encontrado") })
 	@GetMapping("/{id}")
 	public ProductDTO findById(@PathVariable Integer id) {
 
