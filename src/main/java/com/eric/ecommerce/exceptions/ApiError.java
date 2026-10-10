@@ -2,11 +2,18 @@ package com.eric.ecommerce.exceptions;
 
 import java.util.Map;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Resposta padrão de erro da API")
 public class ApiError {
 
+	@Schema(description = "Código HTTP do erro", example = "404")
 	private Integer status;
+
+	@Schema(description = "Mensagem principal do erro", example = "Produto não encontrado")
 	private String message;
 
+	@Schema(description = "Detalhes dos erros por campos")
 	private Map<String, String> errors;
 
 	public ApiError() {

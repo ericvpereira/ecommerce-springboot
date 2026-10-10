@@ -2,21 +2,39 @@ package com.eric.ecommerce.dto;
 
 import java.math.BigDecimal;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class ProductDTO {
-
+	
+	@Schema(
+		description = "Identificador único do produto",
+		example = "1"
+	)
 	private Integer id;
 
 	@NotBlank
+	@Schema(
+		description = "Nome do produto",
+		example = "Notebook Gamer"
+	)
 	private String nome;
 
 	@DecimalMin("0")
+	@Schema(
+		description = "Preço do produto",
+		example = "4500.00"
+	)
 	private BigDecimal preco;
 
 	@NotNull
+	@Schema(
+		description = "Identificador da categoria do produto",
+		example = "1"
+	)
 	private Integer categoriaId;
 
 	public ProductDTO() {

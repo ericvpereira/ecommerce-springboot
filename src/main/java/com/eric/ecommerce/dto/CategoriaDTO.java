@@ -1,12 +1,16 @@
 package com.eric.ecommerce.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import jakarta.validation.constraints.NotBlank;
 
 public class CategoriaDTO {
 
+	@Schema(description = "Identificador único da categoria", example = "1")
 	private Integer id;
 
 	@NotBlank
+	@Schema(description = "Nome da categoria", example = "Informática")
 	private String nome;
 
 	public CategoriaDTO() {
