@@ -14,9 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eric.ecommerce.dto.CategoriaDTO;
+import com.eric.ecommerce.exceptions.ApiError;
 import com.eric.ecommerce.service.CategoriaService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,9 +45,17 @@ public class CategoriaController {
 		return categoriaService.findAll();
 	}
 
-	@Operation(summary = "Buscar categorias por ID", description = "Busca uma categoria pelo seu identificador")
+	@Operation(summary = "Buscar categoria por ID", description = "Busca uma categoria pelo seu identificador")
 	@ApiResponses({ @ApiResponse(responseCode = "200", description = "Categoria encontrada"),
-			@ApiResponse(responseCode = "404", description = "Categoria não encontrada") })
+			@ApiResponse(responseCode = "404", description = "Categoria não encontrada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class), examples = @ExampleObject(value = """
+					{
+						"status": 404,
+						"message": "Categoria não encontrada",
+						"errors": {
+							"categoria": "Categoria não encontrada"
+						}
+					}
+					"""))) })
 	@GetMapping("/{id}")
 	public CategoriaDTO findById(@PathVariable Integer id) {
 
@@ -52,7 +64,16 @@ public class CategoriaController {
 	}
 
 	@Operation(summary = "Cadastrar categoria", description = "Cadastra uma nova categoria")
-	@ApiResponses({ @ApiResponse(responseCode = "201", description = "Categoria cadastrada com sucesso"),
+	@ApiResponses({
+			@ApiResponse(responseCode = "201", description = "Categoria cadastrada com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class), examples = @ExampleObject(value = """
+					{
+						"status": 400,
+						"message": "Erro de validação",
+						"errors": {
+							"nome": "não deve estar em branco"
+						}
+					}
+					"""))),
 			@ApiResponse(responseCode = "400", description = "Dados da categoria inválidos") })
 	@PostMapping
 	public ResponseEntity<CategoriaDTO> save(@RequestBody @Valid CategoriaDTO dto) {
@@ -65,8 +86,25 @@ public class CategoriaController {
 
 	@Operation(summary = "Atualizar categoria", description = "Atualiza os dados de uma categoria existente")
 	@ApiResponses({ @ApiResponse(responseCode = "200", description = "Categoria atualizada com sucesso"),
-			@ApiResponse(responseCode = "400", description = "Dados com categoria inválidos"),
-			@ApiResponse(responseCode = "404", description = "Categoria não encontrada") })
+			@ApiResponse(responseCode = "400", description = "Dados com categoria inválidos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class), examples = @ExampleObject(value = """
+					{
+						"status": 400,
+						"message": "Erro de validação",
+						"errors": {
+							"nome": "não deve estar em branco"
+						}
+					}
+
+					"""))),
+			@ApiResponse(responseCode = "404", description = "Categoria não encontrada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class), examples = @ExampleObject(value = """
+					{
+						"status": 404,
+						"message": "Categoria não encontrada",
+						"errors": {
+							"categoria": "Categoria não encontrada"
+						}
+					}
+					"""))) })
 	@PutMapping("/{id}")
 	public CategoriaDTO update(@PathVariable Integer id, @RequestBody @Valid CategoriaDTO dto) {
 
@@ -75,8 +113,26 @@ public class CategoriaController {
 	}
 
 	@Operation(summary = "Excluir categoria", description = "Remove uma categoria existente pelo seu identificador")
-	@ApiResponses({ @ApiResponse(responseCode = "204", description = "Categoria excluída com sucesso"),
-			@ApiResponse(responseCode = "404", description = "Categoria não encontrada") })
+	@ApiResponses({
+			@ApiResponse(responseCode = "204", description = "Categoria excluída com sucesso", content = @Content),
+			@ApiResponse(responseCode = "404", description = "Categoria não encontrada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class), examples = @ExampleObject(value = """
+					{
+					  "status": 404,
+					  "message": "Categoria não encontrada",
+					  "errors": {
+					    "categoria": "Categoria não encontrada"
+					  }
+					}
+					"""))),
+			@ApiResponse(responseCode = "409", description = "Categoria possui produtos associados", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class), examples = @ExampleObject(value = """
+					{
+					  "status": 409,
+					  "message": "Categoria em uso",
+					  "errors": {
+					    "categoria": "A categoria não pode ser excluída porque possui produtos associados"
+					  }
+					}
+					"""))) })
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
 

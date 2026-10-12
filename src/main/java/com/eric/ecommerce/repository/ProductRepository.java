@@ -6,5 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import com.eric.ecommerce.model.Product;
 
 public interface ProductRepository extends JpaRepository<Product, Integer>, JpaSpecificationExecutor<Product> {
+	
+	boolean existsByCategoria_Id(Integer categoriaId);
 
 }

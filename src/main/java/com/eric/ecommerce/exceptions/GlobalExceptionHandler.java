@@ -66,4 +66,16 @@ public class GlobalExceptionHandler {
 
 	}
 
+	@ExceptionHandler(CategoriaInUseException.class)
+	public ResponseEntity<ApiError> handleCategoriaInUseException(CategoriaInUseException ex) {
+
+		Map<String, String> map = new HashMap<>();
+		map.put("categoria", ex.getMessage());
+
+		ApiError apiError = new ApiError(HttpStatus.CONFLICT.value(), "Categoria em uso", map);
+
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+
+	}
+
 }

@@ -3,6 +3,9 @@ package com.eric.ecommerce.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.eric.ecommerce.repository.ProductRepository;
+import com.eric.ecommerce.exceptions.CategoriaInUseException;
+
 import org.springframework.stereotype.Service;
 
 import com.eric.ecommerce.dto.CategoriaDTO;
@@ -15,8 +18,11 @@ public class CategoriaService {
 
 	private final CategoriaRepository categoriaRepository;
 
-	public CategoriaService(CategoriaRepository categoriaRepository) {
+	private final ProductRepository productRepository;
+
+	public CategoriaService(CategoriaRepository categoriaRepository, ProductRepository productRepository) {
 		this.categoriaRepository = categoriaRepository;
+		this.productRepository = productRepository;
 	}
 
 	public CategoriaDTO save(CategoriaDTO dto) {
@@ -63,6 +69,12 @@ public class CategoriaService {
 	public void deleteById(Integer id) {
 
 		Categoria categoria = findById(id);
+
+		if (productRepository.existsByCategoria_Id(id)) {
+
+			throw new CategoriaInUseException("A categoria não pode ser excluída porque possui produtos associados");
+
+		}
 
 		categoriaRepository.delete(categoria);
 
