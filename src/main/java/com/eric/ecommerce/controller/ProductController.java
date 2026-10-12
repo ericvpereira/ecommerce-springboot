@@ -24,6 +24,7 @@ import com.eric.ecommerce.service.ProductService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -65,8 +66,8 @@ public class ProductController {
 
 	@Operation(summary = "Cadastrar produto", description = "Cadastra um novo produto vinculado a uma categoria existente")
 	@ApiResponses({ @ApiResponse(responseCode = "201", description = "Produto cadastrado com sucesso"),
-			@ApiResponse(responseCode = "400", description = "Dados do produto inválidos"),
-			@ApiResponse(responseCode = "404", description = "Categoria não encontrada") })
+			@ApiResponse(responseCode = "400", description = "Dados do produto inválidos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))),
+			@ApiResponse(responseCode = "404", description = "Categoria não encontrada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class))) })
 	@PostMapping
 	public ResponseEntity<ProductDTO> createdProduct(@RequestBody @Valid ProductDTO dto) {
 
@@ -76,9 +77,26 @@ public class ProductController {
 
 	}
 
+	@Operation(summary = "Atualizar produto", description = "Atualiza os dados de um produto existente")
 	@ApiResponses({ @ApiResponse(responseCode = "200", description = "Produto atualizado com sucesso"),
-			@ApiResponse(responseCode = "400", description = "Dados do produto inválidos"),
-			@ApiResponse(responseCode = "404", description = "Produto ou categoria não encontrado") })
+			@ApiResponse(responseCode = "400", description = "Dados do produto inválidos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class), examples = @ExampleObject(value = """
+					{
+						"status": 400,
+						"message": "Erro de validação",
+						"errors": {
+							"nome": "não deve estar em branco"
+						}
+					}
+					"""))),
+			@ApiResponse(responseCode = "404", description = "Produto ou categoria não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class), examples = @ExampleObject(value = """
+					{
+						"status": 404,
+						"message": "Produto não encontrado",
+						"errors": {
+							"product": "Produto não encontrado"
+						}
+					}
+					"""))) })
 	@PutMapping("/{id}")
 	public ProductDTO update(@PathVariable Integer id, @RequestBody @Valid ProductDTO product) {
 
@@ -87,8 +105,17 @@ public class ProductController {
 	}
 
 	@Operation(summary = "Excluir produto", description = "Remove um produto existente pelo seu identificador")
-	@ApiResponses({ @ApiResponse(responseCode = "204", description = "Produto excluído com sucesso"),
-			@ApiResponse(responseCode = "404", description = "Produto não encontrado") })
+	@ApiResponses({
+			@ApiResponse(responseCode = "204", description = "Produto excluído com sucesso", content = @Content),
+			@ApiResponse(responseCode = "404", description = "Produto não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class), examples = @ExampleObject(value = """
+					{
+						"status": 404,
+						"message": "Produto não encontrado",
+						"errors": {
+							"product": "Produto não encontrado"
+						}
+					}
+					"""))) })
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> delete(@PathVariable Integer id) {
 
