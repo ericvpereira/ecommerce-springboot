@@ -3,6 +3,7 @@ package com.eric.ecommerce.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -16,9 +17,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.eric.ecommerce.dto.CategoriaDTO;
+import com.eric.ecommerce.exceptions.CategoriaInUseException;
 import com.eric.ecommerce.exceptions.CategoriaNotFoundException;
 import com.eric.ecommerce.model.Categoria;
 import com.eric.ecommerce.repository.CategoriaRepository;
+import com.eric.ecommerce.repository.ProductRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class CategoriaServiceTest {
@@ -28,6 +31,9 @@ public class CategoriaServiceTest {
 
 	@InjectMocks
 	private CategoriaService categoriaService;
+
+	@Mock
+	private ProductRepository productRepository;
 
 	@Test
 	void deveBuscarCategoriaPorId() {
@@ -110,11 +116,32 @@ public class CategoriaServiceTest {
 
 		when(categoriaRepository.findById(1)).thenReturn(Optional.of(categoriaExistente));
 
+		when(productRepository.existsByCategoria_Id(1)).thenReturn(false);
+
 		categoriaService.deleteById(1);
 
 		verify(categoriaRepository).findById(1);
+		verify(productRepository).existsByCategoria_Id(1);
 		verify(categoriaRepository).delete(categoriaExistente);
+	}
 
+	@Test
+	void deveLancarExcecaoAoExcluirCategoriaEmUso() {
+
+		Categoria categoriaExistente = new Categoria();
+		categoriaExistente.setId(1);
+		categoriaExistente.setNome("Informatica");
+
+		when(categoriaRepository.findById(1)).thenReturn(Optional.of(categoriaExistente));
+
+		when(productRepository.existsByCategoria_Id(1)).thenReturn(true);
+
+		assertThrows(CategoriaInUseException.class, () -> categoriaService.deleteById(1));
+
+		verify(categoriaRepository).findById(1);
+		verify(productRepository).existsByCategoria_Id(1);
+
+		verify(categoriaRepository, never()).delete(any(Categoria.class));
 	}
 
 	@Test
