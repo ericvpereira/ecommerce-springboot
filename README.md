@@ -2,7 +2,7 @@
 
 API REST de catálogo de produtos e categorias, desenvolvida em **Java e Spring Boot** como projeto de evolução em desenvolvimento backend.
 
-> **Status:** em desenvolvimento. As funcionalidades descritas abaixo refletem o código versionado; a execução e a suíte de testes ainda precisam ser validadas no ambiente de cada pessoa.
+> **Status:** em desenvolvimento. A versão atual possui CRUD de produtos e categorias, filtros, paginação, validações, Flyway, OpenAPI/Swagger e uma suíte de **43 testes automatizados**, validada localmente.
 
 ## Tecnologias
 
@@ -10,7 +10,10 @@ API REST de catálogo de produtos e categorias, desenvolvida em **Java e Spring 
 - **Spring Boot 4.1.1**, Spring Web MVC, Spring Data JPA e Bean Validation
 - **PostgreSQL 17** com Docker Compose
 - **Maven Wrapper** para compilação e execução
-- Testes com a infraestrutura de teste do Spring Boot, JUnit e Mockito
+- **Flyway** para versionamento do schema do banco
+- **OpenAPI/Swagger (springdoc)** para documentação interativa da API
+- **Testcontainers** para testes de integração com PostgreSQL
+- Testes com Spring Boot Test, JUnit e Mockito
 
 ## Funcionalidades implementadas no código
 
@@ -20,7 +23,10 @@ API REST de catálogo de produtos e categorias, desenvolvida em **Java e Spring 
 - Pesquisa de produtos por nome, categoria e intervalo de preço
 - Paginação e ordenação dos resultados
 - Tratamento centralizado de exceções
-- Testes automatizados de serviço e controller para produtos
+- Regra de integridade que impede excluir uma categoria enquanto existirem produtos associados
+- Migração inicial de banco gerenciada pelo Flyway
+- Documentação OpenAPI/Swagger dos endpoints e respostas de erro
+- Testes automatizados de controller, service, specifications e integração
 
 ## Principais endpoints
 
@@ -56,7 +62,23 @@ Exemplo de corpo para criar um produto (a categoria precisa existir):
 | GET | `/api/categories/{id}` | Busca uma categoria |
 | POST | `/api/categories` | Cadastra uma categoria |
 | PUT | `/api/categories/{id}` | Atualiza uma categoria |
-| DELETE | `/api/categories/{id}` | Remove uma categoria |
+| DELETE | `/api/categories/{id}` | Remove uma categoria somente se ela não estiver em uso |
+
+### Regra de exclusão de categorias
+
+Ao tentar excluir uma categoria que possui produtos associados, a API mantém a integridade dos dados e responde com **HTTP 409 Conflict**.
+
+Exemplo de resposta:
+
+```json
+{
+  "status": 409,
+  "message": "Categoria em uso",
+  "errors": {
+    "categoria": "A categoria não pode ser excluída porque possui produtos associados"
+  }
+}
+```
 
 ## Estrutura do projeto
 
@@ -74,6 +96,7 @@ src/
 │   └── resources/application.properties
 └── test/java/com/eric/ecommerce/
     ├── controller/
+    ├── repository/
     └── service/
 ```
 
@@ -88,7 +111,17 @@ src/
    cd ecommerce-springboot
    ```
 
-2. Confira a configuração local em `src/main/resources/application.properties`. O projeto atualmente utiliza `jdbc:postgresql://localhost:5432/ecommerce`, usuário `postgres` e senha local de desenvolvimento. **Altere/remova credenciais fixas antes de qualquer implantação pública.**
+2. Configure as variáveis de ambiente usadas pela aplicação:
+
+   **PowerShell (Windows):**
+
+   ```powershell
+   $env:DB_URL="jdbc:postgresql://localhost:5432/ecommerce"
+   $env:DB_USERNAME="postgres"
+   $env:DB_PASSWORD="postgres"
+   ```
+
+   O `application.properties` lê essas configurações por meio de `DB_URL`, `DB_USERNAME` e `DB_PASSWORD`, evitando credenciais fixas no código.
 
 3. Inicie o banco de dados:
 
@@ -104,20 +137,25 @@ src/
 
    No Linux/macOS, use `./mvnw spring-boot:run`.
 
-5. Para executar os testes localmente (Windows):
+5. Com a aplicação em execução, a documentação interativa fica disponível em:
+
+   - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+   - OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+
+6. Para executar os testes localmente (Windows):
 
    ```powershell
    .\mvnw.cmd test
    ```
 
-   No Linux/macOS, use `./mvnw test`. A execução dos testes depende das configurações de banco e do ambiente de testes; não há resultado de CI validado neste README.
+   No Linux/macOS, use `./mvnw test`. A suíte atual possui **43 testes** entre testes unitários, de controller, specifications e integração. Os testes de integração utilizam Testcontainers com PostgreSQL.
 
 ## Próximos passos
 
-- Externalizar as credenciais do banco de dados
-- Ampliar a cobertura de testes e validar a execução automatizada
-- Adicionar migrações de banco e documentação OpenAPI, conforme a evolução do projeto
-- Evoluir o domínio para novas funcionalidades de e-commerce
+- Adicionar integração contínua (CI) para validar build e testes automaticamente
+- Implementar autenticação e autorização com Spring Security/JWT
+- Evoluir o domínio para carrinho, pedidos, estoque e regras transacionais
+- Continuar ampliando a cobertura de testes conforme novas funcionalidades forem adicionadas
 
 ---
 

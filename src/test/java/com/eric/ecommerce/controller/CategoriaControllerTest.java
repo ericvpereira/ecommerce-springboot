@@ -2,6 +2,7 @@ package com.eric.ecommerce.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -21,6 +22,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.eric.ecommerce.dto.CategoriaDTO;
+import com.eric.ecommerce.exceptions.CategoriaInUseException;
 import com.eric.ecommerce.service.CategoriaService;
 
 import tools.jackson.databind.ObjectMapper;
@@ -106,6 +108,22 @@ public class CategoriaControllerTest {
 	void deveExcluirCategoriaComSucesso() throws Exception {
 
 		mockMvc.perform(delete("/api/categories/1")).andExpect(status().isNoContent());
+
+		verify(categoriaService).deleteById(1);
+
+	}
+
+	@Test
+	void deveRetornarConflitoAoExcluirCategoriaEmUso() throws Exception {
+
+		doThrow(new CategoriaInUseException("A categoria não pode ser excluída porque possui produtos associados"))
+				.when(categoriaService).deleteById(1);
+
+		mockMvc.perform(delete("/api/categories/1")).andExpect(status().isConflict())
+				.andExpect(jsonPath("$.status").value(409))
+				.andExpect(jsonPath("$.message").value("Categoria em uso"))
+				.andExpect(jsonPath("$.errors.categoria")
+						.value("A categoria não pode ser excluída porque possui produtos associados"));
 
 		verify(categoriaService).deleteById(1);
 
