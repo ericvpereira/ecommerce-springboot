@@ -15,6 +15,8 @@ API REST de catálogo de produtos e categorias, desenvolvida em **Java e Spring 
 - **Testcontainers** para testes de integração com PostgreSQL
 - Testes com Spring Boot Test, JUnit e Mockito
 - **GitHub Actions** para integração contínua em `push` e `pull_request` para `main`
+- - **Spring Security** para autenticação e autorização
+- **BCrypt** para hash seguro de senhas
 
 ## Funcionalidades implementadas no código
 
@@ -29,6 +31,12 @@ API REST de catálogo de produtos e categorias, desenvolvida em **Java e Spring 
 - Documentação OpenAPI/Swagger dos endpoints e respostas de erro
 - Testes automatizados de controller, service, specifications e integração
 - Pipeline de CI executando os testes automaticamente no GitHub Actions
+- Estrutura inicial de autenticação com Spring Security
+- Configuração stateless preparada para JWT
+- Modelo de usuários com perfis `USER` e `ADMIN`
+- Persistência de usuários com Flyway
+- Senhas protegidas com BCrypt
+- Serviço de cadastro de usuários
 
 ## Principais endpoints
 
@@ -165,7 +173,9 @@ O workflow utiliza Ubuntu, Java 25 (Temurin), cache do Maven e executa a suíte 
 
 ## Próximos passos
 
-- Implementar autenticação e autorização com Spring Security/JWT
+- Criar os endpoints públicos de cadastro e login
+- Implementar geração e validação de JWT
+- Aplicar autorização por perfil USER/ADMIN
 - Evoluir o domínio para carrinho, pedidos, estoque e regras transacionais
 - Continuar ampliando a cobertura de testes conforme novas funcionalidades forem adicionadas
 
