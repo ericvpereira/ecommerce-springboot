@@ -15,7 +15,7 @@ API REST de catálogo de produtos e categorias, desenvolvida em **Java e Spring 
 - **Testcontainers** para testes de integração com PostgreSQL
 - Testes com Spring Boot Test, JUnit e Mockito
 - **GitHub Actions** para integração contínua em `push` e `pull_request` para `main`
-- - **Spring Security** para autenticação e autorização
+- **Spring Security** para autenticação e autorização
 - **BCrypt** para hash seguro de senhas
 
 ## Funcionalidades implementadas no código
