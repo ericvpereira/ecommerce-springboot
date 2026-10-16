@@ -2,7 +2,7 @@
 
 API REST de catálogo de produtos e categorias, desenvolvida em **Java e Spring Boot** como projeto de evolução em desenvolvimento backend.
 
-> **Status:** em desenvolvimento. A versão atual possui CRUD de produtos e categorias, filtros, paginação, validações, Flyway, OpenAPI/Swagger e uma suíte de **43 testes automatizados**, validada localmente.
+> **Status:** em desenvolvimento. A versão atual possui CRUD de produtos e categorias, filtros, paginação, validações, Flyway, OpenAPI/Swagger, **43 testes automatizados** e **CI com GitHub Actions** validando a suíte automaticamente.
 
 ## Tecnologias
 
@@ -14,6 +14,7 @@ API REST de catálogo de produtos e categorias, desenvolvida em **Java e Spring 
 - **OpenAPI/Swagger (springdoc)** para documentação interativa da API
 - **Testcontainers** para testes de integração com PostgreSQL
 - Testes com Spring Boot Test, JUnit e Mockito
+- **GitHub Actions** para integração contínua em `push` e `pull_request` para `main`
 
 ## Funcionalidades implementadas no código
 
@@ -27,6 +28,7 @@ API REST de catálogo de produtos e categorias, desenvolvida em **Java e Spring 
 - Migração inicial de banco gerenciada pelo Flyway
 - Documentação OpenAPI/Swagger dos endpoints e respostas de erro
 - Testes automatizados de controller, service, specifications e integração
+- Pipeline de CI executando os testes automaticamente no GitHub Actions
 
 ## Principais endpoints
 
@@ -150,9 +152,19 @@ src/
 
    No Linux/macOS, use `./mvnw test`. A suíte atual possui **43 testes** entre testes unitários, de controller, specifications e integração. Os testes de integração utilizam Testcontainers com PostgreSQL.
 
+## Integração contínua
+
+O projeto possui o workflow `CI - E-commerce API`, configurado em `.github/workflows/ci.yml`.
+
+A pipeline é executada automaticamente em:
+
+- `push` para a branch `main`
+- `pull_request` direcionado para a branch `main`
+
+O workflow utiliza Ubuntu, Java 25 (Temurin), cache do Maven e executa a suíte com `./mvnw test`.
+
 ## Próximos passos
 
-- Adicionar integração contínua (CI) para validar build e testes automaticamente
 - Implementar autenticação e autorização com Spring Security/JWT
 - Evoluir o domínio para carrinho, pedidos, estoque e regras transacionais
 - Continuar ampliando a cobertura de testes conforme novas funcionalidades forem adicionadas
