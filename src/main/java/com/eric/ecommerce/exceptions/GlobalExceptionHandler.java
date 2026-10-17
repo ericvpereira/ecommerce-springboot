@@ -78,4 +78,16 @@ public class GlobalExceptionHandler {
 
 	}
 
+	@ExceptionHandler(EmailAlreadyExistsException.class)
+	public ResponseEntity<ApiError> handleEmailAlreadyExistsException(EmailAlreadyExistsException ex) {
+
+		Map<String, String> map = new HashMap<>();
+		map.put("email", ex.getMessage());
+
+		ApiError apiError = new ApiError(HttpStatus.CONFLICT.value(), "Email já existe", map);
+
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+
+	}
+
 }
