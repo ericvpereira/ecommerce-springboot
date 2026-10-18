@@ -2,22 +2,22 @@ package com.eric.ecommerce.dto.auth;
 
 public class LoginResponse {
 
-	private String message;
+	private String token;
 
 	public LoginResponse() {
 
 	}
 
-	public LoginResponse(String message) {
-		this.message = message;
+	public LoginResponse(String token) {
+		this.token = token;
 	}
 
 	public String getMessage() {
-		return message;
+		return token;
 	}
 
-	public void setMessage(String message) {
-		this.message = message;
+	public void setMessage(String token) {
+		this.token = token;
 	}
 
 }
