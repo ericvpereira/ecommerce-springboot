@@ -1,6 +1,7 @@
 package com.eric.ecommerce.service;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import com.eric.ecommerce.dto.auth.LoginRequest;
 import com.eric.ecommerce.dto.auth.LoginResponse;
 import com.eric.ecommerce.dto.auth.RegisterRequest;
 import com.eric.ecommerce.exceptions.EmailAlreadyExistsException;
+import com.eric.ecommerce.exceptions.InvalidCredentialsException;
 import com.eric.ecommerce.model.AppUser;
 import com.eric.ecommerce.model.Role;
 import com.eric.ecommerce.repository.UserRepository;
@@ -47,10 +49,14 @@ public class AuthService {
 
 	public LoginResponse login(LoginRequest request) {
 
-		authenticationManager
-				.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+		try {
+			authenticationManager
+					.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+			return new LoginResponse("Login realizado com sucesso");
 
-		return new LoginResponse("Login realizado com sucesso");
+		} catch (BadCredentialsException ex) {
+			throw new InvalidCredentialsException("Credenciais inválidas");
+		}
 
 	}
 

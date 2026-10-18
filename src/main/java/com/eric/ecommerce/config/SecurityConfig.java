@@ -21,9 +21,9 @@ public class SecurityConfig {
 
 		http.csrf(csrf -> csrf.disable())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(
-						auth -> auth.requestMatchers("/auth/register", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-								.anyRequest().authenticated())
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers("/auth/login", "/auth/register", "/swagger-ui/**", "/v3/api-docs/**")
+						.permitAll().anyRequest().authenticated())
 				.httpBasic(Customizer.withDefaults());
 
 		return http.build();

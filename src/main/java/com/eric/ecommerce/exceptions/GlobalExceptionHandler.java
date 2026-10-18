@@ -90,4 +90,16 @@ public class GlobalExceptionHandler {
 
 	}
 
+	@ExceptionHandler(InvalidCredentialsException.class)
+	public ResponseEntity<ApiError> handleInvalidCredentialsException(InvalidCredentialsException ex) {
+
+		Map<String, String> map = new HashMap<>();
+		map.put("login", "E=mail ou senha incorretos");
+
+		ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED.value(), "Credenciais inválidas", map);
+
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
+
+	}
+
 }
