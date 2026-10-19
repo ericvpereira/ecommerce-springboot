@@ -23,6 +23,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -35,11 +36,13 @@ import com.eric.ecommerce.dto.ProductDTO;
 import com.eric.ecommerce.exceptions.CategoriaNotFoundException;
 import com.eric.ecommerce.exceptions.InvalidPriceRangeException;
 import com.eric.ecommerce.exceptions.ProductNotFoundException;
+import com.eric.ecommerce.security.JwtAuthenticationFilter;
 import com.eric.ecommerce.service.ProductService;
 
 import tools.jackson.databind.ObjectMapper;
 
 @WebMvcTest(ProductController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class ProductControllerTest {
 
 	@Autowired
@@ -50,6 +53,9 @@ public class ProductControllerTest {
 
 	@Autowired
 	private ObjectMapper objectMapper;
+
+	@MockitoBean
+	private JwtAuthenticationFilter jwtAuthenticationFilter;
 
 	@Test
 	void deveBuscarProdutosComSucesso() throws Exception {

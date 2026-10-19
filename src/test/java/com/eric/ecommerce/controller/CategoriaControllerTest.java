@@ -1,5 +1,8 @@
 package com.eric.ecommerce.controller;
 
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import com.eric.ecommerce.security.JwtAuthenticationFilter;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -28,6 +31,7 @@ import com.eric.ecommerce.service.CategoriaService;
 import tools.jackson.databind.ObjectMapper;
 
 @WebMvcTest(CategoriaController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class CategoriaControllerTest {
 
 	@Autowired
@@ -38,6 +42,9 @@ public class CategoriaControllerTest {
 
 	@Autowired
 	private ObjectMapper objectMapper;
+
+	@MockitoBean
+	private JwtAuthenticationFilter jwtAuthenticationFilter;
 
 	@Test
 	void deveListarCategoriasComSucesso() throws Exception {
@@ -120,8 +127,7 @@ public class CategoriaControllerTest {
 				.when(categoriaService).deleteById(1);
 
 		mockMvc.perform(delete("/api/categories/1")).andExpect(status().isConflict())
-				.andExpect(jsonPath("$.status").value(409))
-				.andExpect(jsonPath("$.message").value("Categoria em uso"))
+				.andExpect(jsonPath("$.status").value(409)).andExpect(jsonPath("$.message").value("Categoria em uso"))
 				.andExpect(jsonPath("$.errors.categoria")
 						.value("A categoria não pode ser excluída porque possui produtos associados"));
 
