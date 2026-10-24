@@ -2,6 +2,8 @@ package com.eric.ecommerce.controller;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,6 +29,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @Tag(name = "Categorias", description = "Endpoints para gerenciamento de categorias")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/categories")
 public class CategoriaController {

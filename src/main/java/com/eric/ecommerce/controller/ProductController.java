@@ -2,6 +2,8 @@ package com.eric.ecommerce.controller;
 
 import java.math.BigDecimal;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -32,6 +34,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @Tag(name = "Produtos", description = "Endpoints para gerenciamento de produtos")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
