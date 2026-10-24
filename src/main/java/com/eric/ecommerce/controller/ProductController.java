@@ -2,8 +2,7 @@ package com.eric.ecommerce.controller;
 
 import java.math.BigDecimal;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -30,6 +29,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -51,7 +51,7 @@ public class ProductController {
 	public Page<ProductDTO> findAll(@RequestParam(required = false) BigDecimal precoMin,
 			@RequestParam(required = false) BigDecimal precoMax, @RequestParam(required = false) Integer categoriaId,
 			@RequestParam(required = false) String nome,
-			@PageableDefault(size = 10, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
+			@ParameterObject @PageableDefault(size = 10, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
 
 		return productService.findWithFilters(categoriaId, nome, precoMin, precoMax, pageable);
 

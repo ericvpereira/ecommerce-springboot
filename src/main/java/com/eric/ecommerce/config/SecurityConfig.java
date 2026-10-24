@@ -14,9 +14,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 
 import com.eric.ecommerce.security.JwtAuthenticationFilter;
+
+import jakarta.servlet.DispatcherType;
 
 @Configuration
 @EnableWebSecurity
@@ -31,6 +32,8 @@ public class SecurityConfig {
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
 				.authorizeHttpRequests(auth -> auth
+
+						.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
 
 						.requestMatchers("/auth/login", "/auth/register", "/swagger-ui/**", "/v3/api-docs/**")
 						.permitAll()
@@ -48,14 +51,10 @@ public class SecurityConfig {
 
 						.anyRequest().authenticated())
 
-				.exceptionHandling(ex -> ex
-					    .authenticationEntryPoint(
-					        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
-					    )
-					    .accessDeniedHandler((request, response, exception) -> {
-					        response.setStatus(HttpStatus.FORBIDDEN.value());
-					    })
-					)
+				.exceptionHandling(ex -> ex.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+						.accessDeniedHandler((request, response, exception) -> {
+							response.setStatus(HttpStatus.FORBIDDEN.value());
+						}))
 
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
