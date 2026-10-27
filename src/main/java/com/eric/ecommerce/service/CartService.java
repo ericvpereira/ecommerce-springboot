@@ -4,6 +4,9 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.eric.ecommerce.exceptions.InvalidCartQuantityException;
+import com.eric.ecommerce.exceptions.ProductNotFoundException;
+import com.eric.ecommerce.exceptions.UserNotFoundException;
 import com.eric.ecommerce.model.AppUser;
 import com.eric.ecommerce.model.Cart;
 import com.eric.ecommerce.model.CartItem;
@@ -32,7 +35,7 @@ public class CartService {
 	public Cart getOrCreateCart(String email) {
 
 		AppUser user = userRepository.findByEmail(email)
-				.orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+				.orElseThrow(() -> new UserNotFoundException("Usuário com email [" + email + "] não encontrado"));
 
 		Optional<Cart> cartOptional = cartRepository.findByUser_Email(email);
 
@@ -51,10 +54,14 @@ public class CartService {
 
 	public Cart addProduct(String email, Integer productId, Integer quantidade) {
 
+		if (quantidade == null || quantidade < 1) {
+			throw new InvalidCartQuantityException("A quantidade deve ser maior ou igual a 1");
+		}
+
 		Cart cart = getOrCreateCart(email);
 
 		Product product = productRepository.findById(productId)
-				.orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+				.orElseThrow(() -> new ProductNotFoundException("Produto com ID [" + productId + "] não encontrado"));
 
 		Optional<CartItem> itemOptional = cartItemRepository.findByCart_IdAndProduct_Id(cart.getId(), productId);
 

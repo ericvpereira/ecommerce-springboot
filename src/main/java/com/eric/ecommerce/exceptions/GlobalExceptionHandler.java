@@ -102,4 +102,27 @@ public class GlobalExceptionHandler {
 
 	}
 
+	@ExceptionHandler(UserNotFoundException.class)
+	public ResponseEntity<ApiError> handleUserNotFoundException(UserNotFoundException ex) {
+
+		Map<String, String> map = new HashMap<>();
+		map.put("user", ex.getMessage());
+
+		ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(), "Usuário não encontrado", map);
+
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+	}
+
+	@ExceptionHandler(InvalidCartQuantityException.class)
+	public ResponseEntity<ApiError> handleInvalidCartQuantityException(InvalidCartQuantityException ex) {
+
+		Map<String, String> map = new HashMap<>();
+		map.put("quantidade", ex.getMessage());
+
+		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "Quantidade inválida", map);
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+
+	}
+
 }
