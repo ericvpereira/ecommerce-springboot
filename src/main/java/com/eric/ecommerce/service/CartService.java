@@ -88,6 +88,8 @@ public class CartService {
 
 			cartItemRepository.save(item);
 
+			cart.getItems().add(item);
+
 		}
 
 		return cart;
