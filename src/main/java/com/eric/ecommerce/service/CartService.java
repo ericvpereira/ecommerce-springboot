@@ -1,9 +1,14 @@
 package com.eric.ecommerce.service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.eric.ecommerce.dto.CartItemResponse;
+import com.eric.ecommerce.dto.CartResponse;
 import com.eric.ecommerce.exceptions.InvalidCartQuantityException;
 import com.eric.ecommerce.exceptions.ProductNotFoundException;
 import com.eric.ecommerce.exceptions.UserNotFoundException;
@@ -86,6 +91,41 @@ public class CartService {
 		}
 
 		return cart;
+
+	}
+
+	public CartResponse toResponse(Cart cart) {
+
+		List<CartItemResponse> itemsResponse = new ArrayList<>();
+
+		BigDecimal total = BigDecimal.ZERO;
+
+		for (CartItem item : cart.getItems()) {
+
+			Product product = item.getProduct();
+
+			BigDecimal subtotal = product.getPreco().multiply(BigDecimal.valueOf(item.getQuantidade()));
+
+			CartItemResponse response = new CartItemResponse();
+
+			response.setProductId(product.getId());
+			response.setNome(product.getNome());
+			response.setPreco(product.getPreco());
+			response.setQuantidade(item.getQuantidade());
+			response.setSubtotal(subtotal);
+
+			itemsResponse.add(response);
+
+			total = total.add(subtotal);
+		}
+
+		CartResponse cartResponse = new CartResponse();
+
+		cartResponse.setId(cart.getId());
+		cartResponse.setItems(itemsResponse);
+		cartResponse.setTotal(total);
+
+		return cartResponse;
 
 	}
 
