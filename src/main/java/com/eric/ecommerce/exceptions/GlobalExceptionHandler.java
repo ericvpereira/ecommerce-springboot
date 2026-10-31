@@ -125,4 +125,16 @@ public class GlobalExceptionHandler {
 
 	}
 
+	@ExceptionHandler(CartItemNotFoundException.class)
+	public ResponseEntity<ApiError> handleCartItemNotFoundException(CartItemNotFoundException ex) {
+
+		Map<String, String> map = new HashMap<>();
+		map.put("item", ex.getMessage());
+
+		ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(), "Item não encontrado no carrinho", map);
+
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+
+	}
+
 }

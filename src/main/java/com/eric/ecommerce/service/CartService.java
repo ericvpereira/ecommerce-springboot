@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.eric.ecommerce.dto.CartItemResponse;
 import com.eric.ecommerce.dto.CartResponse;
+import com.eric.ecommerce.exceptions.CartItemNotFoundException;
 import com.eric.ecommerce.exceptions.InvalidCartQuantityException;
 import com.eric.ecommerce.exceptions.ProductNotFoundException;
 import com.eric.ecommerce.exceptions.UserNotFoundException;
@@ -129,6 +130,22 @@ public class CartService {
 
 		return cartResponse;
 
+	}
+
+	public Cart removeProduct(String email, Integer productId) {
+
+		Cart cart = getOrCreateCart(email);
+
+		Optional<CartItem> itemOptional = cartItemRepository.findByCart_IdAndProduct_Id(cart.getId(), productId);
+
+		CartItem item = itemOptional.orElseThrow(
+				() -> new CartItemNotFoundException("Produto com ID [" + productId + "] não encontrado no carrinho"));
+
+		cartItemRepository.delete(item);
+
+		cart.getItems().removeIf(cartItem -> cartItem.getId().equals(item.getId()));
+
+		return cart;
 	}
 
 }

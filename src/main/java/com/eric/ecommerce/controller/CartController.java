@@ -2,7 +2,9 @@ package com.eric.ecommerce.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,4 +54,18 @@ public class CartController {
 		return ResponseEntity.ok(response);
 
 	}
+
+	@DeleteMapping("/items/{productId}")
+	public ResponseEntity<CartResponse> removeItem(Authentication authentication, @PathVariable Integer productId) {
+
+		String email = authentication.getName();
+
+		Cart cart = cartService.removeProduct(email, productId);
+
+		CartResponse response = cartService.toResponse(cart);
+
+		return ResponseEntity.ok(response);
+
+	}
+
 }
