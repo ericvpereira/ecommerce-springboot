@@ -84,4 +84,17 @@ public class CartController {
 
 	}
 
+	@DeleteMapping
+	public ResponseEntity<CartResponse> clearCart(Authentication authentication) {
+
+		String email = authentication.getName();
+
+		Cart cart = cartService.clearCart(email);
+
+		CartResponse response = cartService.toResponse(cart);
+
+		return ResponseEntity.ok(response);
+
+	}
+
 }

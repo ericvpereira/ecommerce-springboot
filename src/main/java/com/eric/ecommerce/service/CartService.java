@@ -171,4 +171,16 @@ public class CartService {
 
 	}
 
+	public Cart clearCart(String email) {
+
+		Cart cart = getOrCreateCart(email);
+
+		cartItemRepository.deleteAll(cart.getItems());
+
+		cart.getItems().clear();
+
+		return cart;
+
+	}
+
 }
