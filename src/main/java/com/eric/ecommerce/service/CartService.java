@@ -148,4 +148,27 @@ public class CartService {
 		return cart;
 	}
 
+	public Cart updateQuantity(String email, Integer productId, Integer quantidade) {
+
+		if (quantidade == null || quantidade < 1) {
+
+			throw new InvalidCartQuantityException("A quantidade deve ser maior ou igual a 1");
+
+		}
+
+		Cart cart = getOrCreateCart(email);
+
+		Optional<CartItem> itemOptional = cartItemRepository.findByCart_IdAndProduct_Id(cart.getId(), productId);
+
+		CartItem item = itemOptional.orElseThrow(
+				() -> new CartItemNotFoundException("Produto com ID [" + productId + "] não encontrado no carrinho"));
+
+		item.setQuantidade(quantidade);
+
+		cartItemRepository.save(item);
+
+		return cart;
+
+	}
+
 }

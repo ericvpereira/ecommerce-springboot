@@ -6,12 +6,14 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eric.ecommerce.dto.AddCartItemRequest;
 import com.eric.ecommerce.dto.CartResponse;
+import com.eric.ecommerce.dto.UpdateCartItemRequest;
 import com.eric.ecommerce.model.Cart;
 import com.eric.ecommerce.service.CartService;
 
@@ -61,6 +63,20 @@ public class CartController {
 		String email = authentication.getName();
 
 		Cart cart = cartService.removeProduct(email, productId);
+
+		CartResponse response = cartService.toResponse(cart);
+
+		return ResponseEntity.ok(response);
+
+	}
+
+	@PutMapping("/items/{productId}")
+	public ResponseEntity<CartResponse> updateItem(Authentication authentication, @PathVariable Integer productId,
+			@RequestBody @Valid UpdateCartItemRequest request) {
+
+		String email = authentication.getName();
+
+		Cart cart = cartService.updateQuantity(email, productId, request.getQuantidade());
 
 		CartResponse response = cartService.toResponse(cart);
 
