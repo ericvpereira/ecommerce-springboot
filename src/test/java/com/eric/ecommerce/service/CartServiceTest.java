@@ -1,10 +1,13 @@
 package com.eric.ecommerce.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -13,8 +16,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.eric.ecommerce.exceptions.UserNotFoundException;
 import com.eric.ecommerce.model.AppUser;
 import com.eric.ecommerce.model.Cart;
+import com.eric.ecommerce.model.CartItem;
+import com.eric.ecommerce.model.Product;
 import com.eric.ecommerce.model.Role;
 import com.eric.ecommerce.repository.CartItemRepository;
 import com.eric.ecommerce.repository.CartRepository;
@@ -87,6 +93,87 @@ public class CartServiceTest {
 		verify(userRepository).findByEmail(email);
 		verify(cartRepository).findByUser_Email(email);
 		verify(cartRepository).save(any(Cart.class));
+
+	}
+
+	@Test
+	void deveLancarExcecaoQuandoUsuarioNaoExistir() {
+
+		String email = "naoexiste@email.com";
+
+		when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+		assertThrows(UserNotFoundException.class, () -> cartService.getOrCreateCart(email));
+
+		verify(userRepository).findByEmail(email);
+		verify(cartRepository, never()).findByUser_Email(email);
+
+	}
+
+	@Test
+	void deveAdicionarProdutoNovoAoCarrinho() {
+
+		String email = "usuario@email.com";
+
+		AppUser user = new AppUser(1, "Eric", email, "123456", Role.USER);
+
+		Cart cart = new Cart();
+		cart.setId(1);
+		cart.setUser(user);
+
+		Product product = new Product(1, null, "Notebook", new BigDecimal("3500.00"));
+
+		when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+		when(cartRepository.findByUser_Email(email)).thenReturn(Optional.of(cart));
+
+		when(productRepository.findById(1)).thenReturn(Optional.of(product));
+
+		when(cartItemRepository.findByCart_IdAndProduct_Id(1, 1)).thenReturn(Optional.empty());
+
+		Cart resultado = cartService.addProduct(email, 1, 2);
+
+		assertEquals(1, resultado.getItems().size());
+
+		assertEquals(2, resultado.getItems().get(0).getQuantidade());
+
+		assertEquals(1, resultado.getItems().get(0).getProduct().getId());
+
+		verify(cartItemRepository).save(any(CartItem.class));
+
+	}
+
+	@Test
+	void deveSomarQuantidadeQuandoProdutoJaExistirNoCarrinho() {
+
+		String email = "usuario@email.com";
+
+		AppUser user = new AppUser(1, "Eric", email, "123456", Role.USER);
+
+		Cart cart = new Cart();
+		cart.setId(1);
+		cart.setUser(user);
+
+		Product product = new Product(1, null, "Notebook", new BigDecimal("3500.00"));
+
+		CartItem itemExistente = new CartItem(1, cart, product, 2);
+
+		cart.getItems().add(itemExistente);
+
+		when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+		when(cartRepository.findByUser_Email(email)).thenReturn(Optional.of(cart));
+
+		when(productRepository.findById(1)).thenReturn(Optional.of(product));
+
+		when(cartItemRepository.findByCart_IdAndProduct_Id(1, 1)).thenReturn(Optional.of(itemExistente));
+
+		Cart resultado = cartService.addProduct(email, 1, 3);
+
+		assertEquals(5, itemExistente.getQuantidade());
+		assertEquals(1, resultado.getItems().size());
+
+		verify(cartItemRepository).save(itemExistente);
 
 	}
 
