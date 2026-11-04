@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.eric.ecommerce.exceptions.InvalidCartQuantityException;
 import com.eric.ecommerce.exceptions.UserNotFoundException;
 import com.eric.ecommerce.model.AppUser;
 import com.eric.ecommerce.model.Cart;
@@ -174,6 +175,35 @@ public class CartServiceTest {
 		assertEquals(1, resultado.getItems().size());
 
 		verify(cartItemRepository).save(itemExistente);
+
+	}
+
+	@Test
+	void deveLancarExcecaoQuandoQuantidadeForInvalida() {
+
+		String email = "usuario@email.com";
+		Integer quantidade = 0;
+
+		assertThrows(InvalidCartQuantityException.class, () -> cartService.addProduct(email, 1, quantidade));
+
+		verify(userRepository, never()).findByEmail(email);
+		verify(productRepository, never()).findById(1);
+
+	}
+
+	@Test
+	void deveLancarExcecaoAoAtualizarComQuantidadeInvalida() {
+
+		String email = "usuario@email.com";
+		Integer productId = 1;
+		Integer quantidade = 0;
+
+		assertThrows(InvalidCartQuantityException.class,
+				() -> cartService.updateQuantity(email, productId, quantidade));
+
+		verify(userRepository, never()).findByEmail(email);
+		verify(cartRepository, never()).findByUser_Email(email);
+		verify(cartItemRepository, never()).findByCart_IdAndProduct_Id(any(), any());
 
 	}
 
