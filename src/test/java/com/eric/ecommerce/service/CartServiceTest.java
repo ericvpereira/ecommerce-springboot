@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.eric.ecommerce.exceptions.CartItemNotFoundException;
 import com.eric.ecommerce.exceptions.InvalidCartQuantityException;
 import com.eric.ecommerce.exceptions.UserNotFoundException;
 import com.eric.ecommerce.model.AppUser;
@@ -204,6 +205,66 @@ public class CartServiceTest {
 		verify(userRepository, never()).findByEmail(email);
 		verify(cartRepository, never()).findByUser_Email(email);
 		verify(cartItemRepository, never()).findByCart_IdAndProduct_Id(any(), any());
+
+	}
+
+	@Test
+	void deveAtualizarQuantidadeComSucesso() {
+
+		String email = "usuario@email.com";
+
+		AppUser user = new AppUser(1, "Eric", email, "123456", Role.USER);
+
+		Cart cart = new Cart();
+		cart.setId(1);
+		cart.setUser(user);
+
+		Product product = new Product(1, null, "Notebook", new BigDecimal("3500.00"));
+
+		CartItem cartItem = new CartItem(1, cart, product, 2);
+
+		cart.getItems().add(cartItem);
+
+		when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+		when(cartRepository.findByUser_Email(email)).thenReturn(Optional.of(cart));
+		when(cartItemRepository.findByCart_IdAndProduct_Id(cart.getId(), product.getId()))
+				.thenReturn(Optional.of(cartItem));
+
+		Cart resultado = cartService.updateQuantity(email, product.getId(), 5);
+
+		assertEquals(5, cartItem.getQuantidade());
+		assertEquals(1, resultado.getId());
+		assertEquals(1, resultado.getItems().size());
+
+		verify(userRepository).findByEmail(email);
+		verify(cartRepository).findByUser_Email(email);
+		verify(cartItemRepository).findByCart_IdAndProduct_Id(cart.getId(), product.getId());
+		verify(cartItemRepository).save(cartItem);
+
+	}
+
+	@Test
+	void deveLancarExcecaoQuandoItemNaoExistirAoAtualizar() {
+
+		String email = "usuario@email.com";
+		Integer productId = 1;
+
+		AppUser user = new AppUser(1, "Eric", email, "123456", Role.USER);
+
+		Cart cart = new Cart();
+		cart.setId(1);
+		cart.setUser(user);
+
+		when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+		when(cartRepository.findByUser_Email(email)).thenReturn(Optional.of(cart));
+		when(cartItemRepository.findByCart_IdAndProduct_Id(cart.getId(), productId)).thenReturn(Optional.empty());
+
+		assertThrows(CartItemNotFoundException.class, () -> cartService.updateQuantity(email, productId, 5));
+
+		verify(userRepository).findByEmail(email);
+		verify(cartRepository).findByUser_Email(email);
+		verify(cartItemRepository).findByCart_IdAndProduct_Id(cart.getId(), productId);
+		verify(cartItemRepository, never()).save(any(CartItem.class));
 
 	}
 
