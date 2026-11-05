@@ -268,4 +268,37 @@ public class CartServiceTest {
 
 	}
 
+	@Test
+	void deveRemoverProdutoDoCarrinhoComSucesso() {
+
+		String email = "usuario@email.com";
+		Integer productId = 1;
+
+		AppUser user = new AppUser(1, "Eric", email, "123456", Role.USER);
+
+		Cart cart = new Cart();
+		cart.setId(1);
+		cart.setUser(user);
+
+		Product product = new Product(productId, null, "Notebook", new BigDecimal("3500.00"));
+
+		CartItem cartItem = new CartItem(1, cart, product, 2);
+
+		cart.getItems().add(cartItem);
+
+		when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+		when(cartRepository.findByUser_Email(email)).thenReturn(Optional.of(cart));
+		when(cartItemRepository.findByCart_IdAndProduct_Id(cart.getId(), productId)).thenReturn(Optional.of(cartItem));
+
+		Cart resultado = cartService.removeProduct(email, productId);
+
+		assertEquals(0, resultado.getItems().size());
+
+		verify(userRepository).findByEmail(email);
+		verify(cartRepository).findByUser_Email(email);
+		verify(cartItemRepository).findByCart_IdAndProduct_Id(cart.getId(), productId);
+		verify(cartItemRepository).delete(cartItem);
+
+	}
+
 }
