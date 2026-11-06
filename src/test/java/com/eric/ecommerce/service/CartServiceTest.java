@@ -3,6 +3,7 @@ package com.eric.ecommerce.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -298,6 +299,66 @@ public class CartServiceTest {
 		verify(cartRepository).findByUser_Email(email);
 		verify(cartItemRepository).findByCart_IdAndProduct_Id(cart.getId(), productId);
 		verify(cartItemRepository).delete(cartItem);
+
+	}
+
+	@Test
+	void deveLancarExcecaoQuandoItemNaoExistirAoRemover() {
+
+		String email = "usuario@email.com";
+		Integer productId = 1;
+
+		AppUser user = new AppUser(1, "Eric", email, "123456", Role.USER);
+
+		Cart cart = new Cart();
+		cart.setId(1);
+		cart.setUser(user);
+
+		when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+		when(cartRepository.findByUser_Email(email)).thenReturn(Optional.of(cart));
+		when(cartItemRepository.findByCart_IdAndProduct_Id(cart.getId(), productId)).thenReturn(Optional.empty());
+
+		assertThrows(CartItemNotFoundException.class, () -> cartService.removeProduct(email, productId));
+
+		verify(userRepository).findByEmail(email);
+		verify(cartRepository).findByUser_Email(email);
+		verify(cartItemRepository).findByCart_IdAndProduct_Id(cart.getId(), productId);
+		verify(cartItemRepository, never()).delete(any(CartItem.class));
+
+	}
+
+	@Test
+	void deveLimparCarrinhoComSucesso() {
+
+		String email = "usuario@email.com";
+
+		AppUser user = new AppUser(1, "Eric", email, "123456", Role.USER);
+
+		Cart cart = new Cart();
+		cart.setId(1);
+		cart.setUser(user);
+
+		Product product1 = new Product(1, null, "Notebook", new BigDecimal("3500.00"));
+
+		Product product2 = new Product(2, null, "Mouse Gamer", new BigDecimal("250.00"));
+
+		CartItem item1 = new CartItem(1, cart, product1, 2);
+
+		CartItem item2 = new CartItem(2, cart, product2, 1);
+
+		cart.getItems().add(item1);
+		cart.getItems().add(item2);
+
+		when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+		when(cartRepository.findByUser_Email(email)).thenReturn(Optional.of(cart));
+
+		Cart resultado = cartService.clearCart(email);
+
+		assertEquals(0, resultado.getItems().size());
+
+		verify(userRepository).findByEmail(email);
+		verify(cartRepository).findByUser_Email(email);
+		verify(cartItemRepository).deleteAll(anyList());
 
 	}
 
