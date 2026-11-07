@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.eric.ecommerce.dto.CartResponse;
 import com.eric.ecommerce.exceptions.CartItemNotFoundException;
 import com.eric.ecommerce.exceptions.InvalidCartQuantityException;
 import com.eric.ecommerce.exceptions.UserNotFoundException;
@@ -360,6 +361,32 @@ public class CartServiceTest {
 		verify(cartRepository).findByUser_Email(email);
 		verify(cartItemRepository).deleteAll(anyList());
 
+	}
+
+	@Test
+	void deveConverterCarrinhoParaResponseComTotalCorreto() {
+
+		Cart cart = new Cart();
+		cart.setId(1);
+
+		Product product1 = new Product(1, null, "Notebook", new BigDecimal("3500.00"));
+
+		Product product2 = new Product(2, null, "Mouse Gamer", new BigDecimal("250.00"));
+
+		CartItem item1 = new CartItem(1, cart, product1, 2);
+
+		CartItem item2 = new CartItem(2, cart, product2, 1);
+
+		cart.getItems().add(item1);
+		cart.getItems().add(item2);
+
+		CartResponse response = cartService.toResponse(cart);
+
+		assertEquals(1, response.getId());
+		assertEquals(2, response.getItems().size());
+		assertEquals(new BigDecimal("7000.00"), response.getItems().get(0).getSubtotal());
+		assertEquals(new BigDecimal("250.00"), response.getItems().get(1).getSubtotal());
+		assertEquals(new BigDecimal("7250.00"), response.getTotal());
 	}
 
 }
