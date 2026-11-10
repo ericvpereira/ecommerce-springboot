@@ -1,6 +1,7 @@
 package com.eric.ecommerce.controller;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -113,6 +114,26 @@ public class CartControllerTest {
 
 		verify(cartService).addProduct(email, 1, 2);
 		verify(cartService).toResponse(cart);
+	}
+
+	@Test
+	void deveRetornarBadRequestQuandoQuantidadeForInvalida() throws Exception {
+
+		String email = "usuario@email.com";
+
+		AddCartItemRequest request = new AddCartItemRequest();
+		request.setProductId(1);
+		request.setQuantidade(0);
+
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken(email, null);
+
+		mockMvc.perform(post("/api/cart/items").principal(authentication).contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(request))).andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.status").value(400)).andExpect(jsonPath("$.message").value("Erro de validação"))
+				.andExpect(jsonPath("$.errors.quantidade").exists());
+
+		verifyNoInteractions(cartService);
+
 	}
 
 }
