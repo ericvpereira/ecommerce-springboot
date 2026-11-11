@@ -1,9 +1,8 @@
 package com.eric.ecommerce.dto;
 
-import org.antlr.v4.runtime.misc.NotNull;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 public class UpdateCartItemRequest {
 
@@ -15,7 +14,7 @@ public class UpdateCartItemRequest {
 	public UpdateCartItemRequest() {
 	}
 
-	public UpdateCartItemRequest(@Min(1) Integer quantidade) {
+	public UpdateCartItemRequest(Integer quantidade) {
 		this.quantidade = quantidade;
 	}
 

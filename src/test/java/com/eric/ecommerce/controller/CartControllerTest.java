@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -23,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.eric.ecommerce.dto.AddCartItemRequest;
 import com.eric.ecommerce.dto.CartItemResponse;
 import com.eric.ecommerce.dto.CartResponse;
+import com.eric.ecommerce.dto.UpdateCartItemRequest;
 import com.eric.ecommerce.model.Cart;
 import com.eric.ecommerce.security.JwtAuthenticationFilter;
 import com.eric.ecommerce.service.CartService;
@@ -133,6 +135,48 @@ public class CartControllerTest {
 				.andExpect(jsonPath("$.errors.quantidade").exists());
 
 		verifyNoInteractions(cartService);
+
+	}
+
+	@Test
+	void deveAtualizarQuantidadeDoItemComSucesso() throws Exception {
+
+		String email = "usuario@email.com";
+		Integer productId = 1;
+
+		UpdateCartItemRequest request = new UpdateCartItemRequest();
+		request.setQuantidade(5);
+
+		Cart cart = new Cart();
+		cart.setId(1);
+
+		CartItemResponse itemResponse = new CartItemResponse();
+		itemResponse.setProductId(1);
+		itemResponse.setNome("Notebook");
+		itemResponse.setPreco(new BigDecimal("3500.00"));
+		itemResponse.setQuantidade(5);
+		itemResponse.setSubtotal(new BigDecimal("17500.00"));
+
+		CartResponse response = new CartResponse();
+		response.setId(1);
+		response.setItems(List.of(itemResponse));
+		response.setTotal(new BigDecimal("17500.00"));
+
+		when(cartService.updateQuantity(email, productId, 5)).thenReturn(cart);
+		when(cartService.toResponse(cart)).thenReturn(response);
+
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken(email, null);
+
+		mockMvc.perform(put("/api/cart/items/{productId}", productId).principal(authentication)
+				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.id").value(1))
+				.andExpect(jsonPath("$.items[0].productId").value(1))
+				.andExpect(jsonPath("$.items[0].quantidade").value(5))
+				.andExpect(jsonPath("$.items[0].subtotal").value(17500.00))
+				.andExpect(jsonPath("$.total").value(17500.00));
+
+		verify(cartService).updateQuantity(email, productId, 5);
+		verify(cartService).toResponse(cart);
 
 	}
 
