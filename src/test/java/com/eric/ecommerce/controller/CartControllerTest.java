@@ -180,4 +180,25 @@ public class CartControllerTest {
 
 	}
 
+	@Test
+	void deveRetornarBadRequestAoAtualizarComQuantidadeInvalida() throws Exception {
+
+		String email = "usuario@email.com";
+		Integer productId = 1;
+
+		UpdateCartItemRequest request = new UpdateCartItemRequest();
+		request.setQuantidade(0);
+
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken(email, null);
+
+		mockMvc.perform(put("/api/cart/items/{productId}", productId).principal(authentication)
+				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+				.andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400))
+				.andExpect(jsonPath("$.message").value("Erro de validação"))
+				.andExpect(jsonPath("$.errors.quantidade").exists());
+
+		verifyNoInteractions(cartService);
+
+	}
+
 }
