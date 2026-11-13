@@ -231,4 +231,31 @@ public class CartControllerTest {
 
 	}
 
+	@Test
+	void deveLimparCarrinhoComSucesso() throws Exception {
+
+		String email = "usuario@email.com";
+
+		Cart cart = new Cart();
+		cart.setId(1);
+
+		CartResponse response = new CartResponse();
+		response.setId(1);
+		response.setItems(List.of());
+		response.setTotal(BigDecimal.ZERO);
+
+		when(cartService.clearCart(email)).thenReturn(cart);
+		when(cartService.toResponse(cart)).thenReturn(response);
+
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken(email, null);
+
+		mockMvc.perform(delete("/api/cart").principal(authentication)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(1)).andExpect(jsonPath("$.items").isArray())
+				.andExpect(jsonPath("$.items").isEmpty()).andExpect(jsonPath("$.total").value(0));
+
+		verify(cartService).clearCart(email);
+		verify(cartService).toResponse(cart);
+
+	}
+
 }
