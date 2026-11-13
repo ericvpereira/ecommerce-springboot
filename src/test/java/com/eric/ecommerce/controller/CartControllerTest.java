@@ -3,6 +3,7 @@ package com.eric.ecommerce.controller;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -198,6 +199,35 @@ public class CartControllerTest {
 				.andExpect(jsonPath("$.errors.quantidade").exists());
 
 		verifyNoInteractions(cartService);
+
+	}
+
+	@Test
+	void deveRemoverItemDoCarrinhoComSucesso() throws Exception {
+
+		String email = "usuario@email.com";
+		Integer productId = 1;
+
+		Cart cart = new Cart();
+		cart.setId(1);
+
+		CartResponse response = new CartResponse();
+		response.setId(1);
+		response.setItems(List.of());
+		response.setTotal(BigDecimal.ZERO);
+
+		when(cartService.removeProduct(email, productId)).thenReturn(cart);
+		when(cartService.toResponse(cart)).thenReturn(response);
+
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken(email, null);
+
+		mockMvc.perform(delete("/api/cart/items/{productId}", productId).principal(authentication))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.id").value(1))
+				.andExpect(jsonPath("$.items").isArray()).andExpect(jsonPath("$.items").isEmpty())
+				.andExpect(jsonPath("$.total").value(0));
+
+		verify(cartService).removeProduct(email, productId);
+		verify(cartService).toResponse(cart);
 
 	}
 
