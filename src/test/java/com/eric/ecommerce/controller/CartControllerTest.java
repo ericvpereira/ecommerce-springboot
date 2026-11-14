@@ -26,6 +26,7 @@ import com.eric.ecommerce.dto.AddCartItemRequest;
 import com.eric.ecommerce.dto.CartItemResponse;
 import com.eric.ecommerce.dto.CartResponse;
 import com.eric.ecommerce.dto.UpdateCartItemRequest;
+import com.eric.ecommerce.exceptions.CartItemNotFoundException;
 import com.eric.ecommerce.model.Cart;
 import com.eric.ecommerce.security.JwtAuthenticationFilter;
 import com.eric.ecommerce.service.CartService;
@@ -255,6 +256,26 @@ public class CartControllerTest {
 
 		verify(cartService).clearCart(email);
 		verify(cartService).toResponse(cart);
+
+	}
+
+	@Test
+	void deveRetornarNotFoundAoRemoverItemInexistente() throws Exception {
+
+		String email = "usuario@email.com";
+		Integer productId = 999;
+
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken(email, null);
+
+		when(cartService.removeProduct(email, productId)).thenThrow(
+				new CartItemNotFoundException("Produto com ID [" + productId + "] não encontrado no carrinho"));
+
+		mockMvc.perform(delete("/api/cart/items/{productId}", productId).principal(authentication))
+				.andExpect(status().isNotFound()).andExpect(jsonPath("$.status").value(404))
+				.andExpect(jsonPath("$.message").value("Item não encontrado no carrinho"))
+				.andExpect(jsonPath("$.errors.item").exists());
+
+		verify(cartService).removeProduct(email, productId);
 
 	}
 
