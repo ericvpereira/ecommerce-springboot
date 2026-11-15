@@ -17,14 +17,16 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.eric.ecommerce.config.SecurityConfig;
+import com.eric.ecommerce.controller.CartController;
 import com.eric.ecommerce.controller.CategoriaController;
 import com.eric.ecommerce.controller.ProductController;
 import com.eric.ecommerce.dto.CategoriaDTO;
+import com.eric.ecommerce.service.CartService;
 import com.eric.ecommerce.service.CategoriaService;
 import com.eric.ecommerce.service.CustomUserDetailsService;
 import com.eric.ecommerce.service.ProductService;
 
-@WebMvcTest(controllers = { ProductController.class, CategoriaController.class })
+@WebMvcTest(controllers = { ProductController.class, CategoriaController.class, CartController.class })
 @Import({ SecurityConfig.class, JwtAuthenticationFilter.class })
 public class SecurityAuthorizationTest {
 
@@ -39,6 +41,9 @@ public class SecurityAuthorizationTest {
 
 	@MockitoBean
 	private JwtService jwtService;
+
+	@MockitoBean
+	private CartService cartService;
 
 	@MockitoBean
 	private CustomUserDetailsService userDetailsService;
@@ -84,5 +89,14 @@ public class SecurityAuthorizationTest {
 					"nome": "Informatica"
 				}
 				""")).andExpect(status().isCreated());
+	}
+
+	@Test
+	void deveRetornar401AoAcessarCarrinhoSemAutenticacao() throws Exception {
+
+		mockMvc.perform(get("/api/cart")).andExpect(status().isUnauthorized());
+
+		verifyNoInteractions(cartService);
+
 	}
 }
