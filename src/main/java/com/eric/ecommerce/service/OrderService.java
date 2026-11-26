@@ -9,6 +9,7 @@ import com.eric.ecommerce.exceptions.EmptyCartException;
 import com.eric.ecommerce.model.Cart;
 import com.eric.ecommerce.model.CartItem;
 import com.eric.ecommerce.model.Order;
+import com.eric.ecommerce.model.OrderItem;
 import com.eric.ecommerce.model.OrderStatus;
 import com.eric.ecommerce.repository.OrderItemRepository;
 import com.eric.ecommerce.repository.OrderRepository;
@@ -61,6 +62,22 @@ public class OrderService {
 		order.setTotal(total);
 
 		Order savedOrder = orderRepository.save(order);
+
+		for (CartItem item : cart.getItems()) {
+
+			OrderItem orderItem = new OrderItem();
+
+			orderItem.setOrder(savedOrder);
+			orderItem.setProduct(item.getProduct());
+			orderItem.setQuantidade(item.getQuantidade());
+			orderItem.setPrecoUnitario(item.getProduct().getPreco());
+
+			orderItemRepository.save(orderItem);
+			savedOrder.getItems().add(orderItem);
+
+		}
+
+		cartService.clearCart(email);
 
 		return savedOrder;
 
